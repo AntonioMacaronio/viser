@@ -267,16 +267,17 @@ const GaussianSplatMaterial = /* @__PURE__ */ shaderMaterial(
     for (int i = 0; i < 16; i++) {
         sh_coeffs[i] = vec3(sh_coeffs_unpacked[i*3], sh_coeffs_unpacked[i*3+1], sh_coeffs_unpacked[i*3+2]);
     }
-
-    float x = viewDir.x;
-    float y = viewDir.y;
-    float z = viewDir.z;
+    float norm = 1/sqrt(viewDir.x*viewDir.x + viewDir.y*viewDir.y + viewDir.z*viewDir.z)
+    float x = viewDir.x * norm;
+    float y = viewDir.y * norm;
+    float z = viewDir.z * norm;
     float xx = viewDir.x * viewDir.x;
     float yy = viewDir.y * viewDir.y;
     float zz = viewDir.z * viewDir.z;
     float xy = viewDir.x * viewDir.y;
     float yz = viewDir.y * viewDir.z;
     float xz = viewDir.x * viewDir.z;
+    
 
     vec3 rgb = C0 * sh_coeffs[0]; // line 74 of plenoxels
     vec3 pointFive = vec3(0.5, 0.5, 0.5);
