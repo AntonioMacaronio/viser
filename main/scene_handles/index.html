@@ -417,14 +417,14 @@ methods like <code class="xref py py-func docutils literal notranslate"><span cl
 
 <dl class="py property">
 <dt class="sig sig-object py" id="viser.SceneNodeHandle.wxyz">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">wxyz</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#viser.SceneNodeHandle.wxyz" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">wxyz</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float32</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#viser.SceneNodeHandle.wxyz" title="Link to this definition">¶</a></dt>
 <dd><p>Orientation of the scene node. This is the quaternion representation of the R
 in <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automatically when assigned.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="viser.SceneNodeHandle.position">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">position</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#viser.SceneNodeHandle.position" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">position</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float32</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#viser.SceneNodeHandle.position" title="Link to this definition">¶</a></dt>
 <dd><p>Position of the scene node. This is equivalent to the t in
 <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automatically when assigned.</p>
 </dd></dl>
@@ -509,7 +509,7 @@ control of the frustum’s dimensions.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="viser.CameraFrustumHandle.position">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">position</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#viser.CameraFrustumHandle.position" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">position</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float32</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#viser.CameraFrustumHandle.position" title="Link to this definition">¶</a></dt>
 <dd><p>Position of the scene node. This is equivalent to the t in
 <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automatically when assigned.</p>
 </dd></dl>
@@ -547,7 +547,7 @@ control of the frustum’s dimensions.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="viser.CameraFrustumHandle.wxyz">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">wxyz</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#viser.CameraFrustumHandle.wxyz" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">wxyz</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float32</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#viser.CameraFrustumHandle.wxyz" title="Link to this definition">¶</a></dt>
 <dd><p>Orientation of the scene node. This is the quaternion representation of the R
 in <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automatically when assigned.</p>
 </dd></dl>
@@ -635,7 +635,7 @@ in <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automaticall
 
 <dl class="py property">
 <dt class="sig sig-object py" id="viser.FrameHandle.position">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">position</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#viser.FrameHandle.position" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">position</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float32</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#viser.FrameHandle.position" title="Link to this definition">¶</a></dt>
 <dd><p>Position of the scene node. This is equivalent to the t in
 <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automatically when assigned.</p>
 </dd></dl>
@@ -673,7 +673,7 @@ in <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automaticall
 
 <dl class="py property">
 <dt class="sig sig-object py" id="viser.FrameHandle.wxyz">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">wxyz</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#viser.FrameHandle.wxyz" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">wxyz</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float32</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#viser.FrameHandle.wxyz" title="Link to this definition">¶</a></dt>
 <dd><p>Orientation of the scene node. This is the quaternion representation of the R
 in <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automatically when assigned.</p>
 </dd></dl>
@@ -743,7 +743,7 @@ in <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automaticall
 
 <dl class="py property">
 <dt class="sig sig-object py" id="viser.BatchedAxesHandle.position">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">position</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#viser.BatchedAxesHandle.position" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">position</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float32</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#viser.BatchedAxesHandle.position" title="Link to this definition">¶</a></dt>
 <dd><p>Position of the scene node. This is equivalent to the t in
 <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automatically when assigned.</p>
 </dd></dl>
@@ -781,7 +781,7 @@ in <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automaticall
 
 <dl class="py property">
 <dt class="sig sig-object py" id="viser.BatchedAxesHandle.wxyz">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">wxyz</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#viser.BatchedAxesHandle.wxyz" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">wxyz</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float32</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#viser.BatchedAxesHandle.wxyz" title="Link to this definition">¶</a></dt>
 <dd><p>Orientation of the scene node. This is the quaternion representation of the R
 in <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automatically when assigned.</p>
 </dd></dl>
@@ -796,6 +796,12 @@ in <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automaticall
 <dt class="sig sig-object py" id="viser.BatchedAxesHandle.batched_positions">
 <span class="sig-name descname"><span class="pre">batched_positions</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">npt.NDArray</span><span class="p"><span class="pre">[</span></span><span class="pre">np.float32</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#viser.BatchedAxesHandle.batched_positions" title="Link to this definition">¶</a></dt>
 <dd><p>Float array of shape (N,3) representing positions. Synchronized automatically when assigned.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="viser.BatchedAxesHandle.batched_scales">
+<span class="sig-name descname"><span class="pre">batched_scales</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">npt.NDArray</span><span class="p"><span class="pre">[</span></span><span class="pre">np.float32</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#viser.BatchedAxesHandle.batched_scales" title="Link to this definition">¶</a></dt>
+<dd><p>Float array of shape (N,) or (N,3) representing uniform or per-axis (XYZ) scales. Synchronized automatically when assigned.</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -845,7 +851,7 @@ in <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automaticall
 
 <dl class="py property">
 <dt class="sig sig-object py" id="viser.GlbHandle.position">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">position</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#viser.GlbHandle.position" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">position</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float32</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#viser.GlbHandle.position" title="Link to this definition">¶</a></dt>
 <dd><p>Position of the scene node. This is equivalent to the t in
 <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automatically when assigned.</p>
 </dd></dl>
@@ -883,7 +889,7 @@ in <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automaticall
 
 <dl class="py property">
 <dt class="sig sig-object py" id="viser.GlbHandle.wxyz">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">wxyz</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#viser.GlbHandle.wxyz" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">wxyz</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float32</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#viser.GlbHandle.wxyz" title="Link to this definition">¶</a></dt>
 <dd><p>Orientation of the scene node. This is the quaternion representation of the R
 in <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automatically when assigned.</p>
 </dd></dl>
@@ -926,7 +932,7 @@ in <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automaticall
 
 <dl class="py property">
 <dt class="sig sig-object py" id="viser.GridHandle.position">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">position</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#viser.GridHandle.position" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">position</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float32</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#viser.GridHandle.position" title="Link to this definition">¶</a></dt>
 <dd><p>Position of the scene node. This is equivalent to the t in
 <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automatically when assigned.</p>
 </dd></dl>
@@ -950,7 +956,7 @@ in <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automaticall
 
 <dl class="py property">
 <dt class="sig sig-object py" id="viser.GridHandle.wxyz">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">wxyz</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#viser.GridHandle.wxyz" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">wxyz</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float32</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#viser.GridHandle.wxyz" title="Link to this definition">¶</a></dt>
 <dd><p>Orientation of the scene node. This is the quaternion representation of the R
 in <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automatically when assigned.</p>
 </dd></dl>
@@ -1041,7 +1047,7 @@ in <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automaticall
 
 <dl class="py property">
 <dt class="sig sig-object py" id="viser.Gui3dContainerHandle.position">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">position</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#viser.Gui3dContainerHandle.position" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">position</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float32</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#viser.Gui3dContainerHandle.position" title="Link to this definition">¶</a></dt>
 <dd><p>Position of the scene node. This is equivalent to the t in
 <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automatically when assigned.</p>
 </dd></dl>
@@ -1054,7 +1060,7 @@ in <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automaticall
 
 <dl class="py property">
 <dt class="sig sig-object py" id="viser.Gui3dContainerHandle.wxyz">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">wxyz</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#viser.Gui3dContainerHandle.wxyz" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">wxyz</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float32</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#viser.Gui3dContainerHandle.wxyz" title="Link to this definition">¶</a></dt>
 <dd><p>Orientation of the scene node. This is the quaternion representation of the R
 in <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automatically when assigned.</p>
 </dd></dl>
@@ -1123,7 +1129,7 @@ in <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automaticall
 
 <dl class="py property">
 <dt class="sig sig-object py" id="viser.ImageHandle.position">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">position</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#viser.ImageHandle.position" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">position</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float32</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#viser.ImageHandle.position" title="Link to this definition">¶</a></dt>
 <dd><p>Position of the scene node. This is equivalent to the t in
 <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automatically when assigned.</p>
 </dd></dl>
@@ -1161,7 +1167,7 @@ in <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automaticall
 
 <dl class="py property">
 <dt class="sig sig-object py" id="viser.ImageHandle.wxyz">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">wxyz</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#viser.ImageHandle.wxyz" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">wxyz</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float32</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#viser.ImageHandle.wxyz" title="Link to this definition">¶</a></dt>
 <dd><p>Orientation of the scene node. This is the quaternion representation of the R
 in <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automatically when assigned.</p>
 </dd></dl>
@@ -1210,7 +1216,7 @@ in <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automaticall
 
 <dl class="py property">
 <dt class="sig sig-object py" id="viser.LabelHandle.position">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">position</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#viser.LabelHandle.position" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">position</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float32</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#viser.LabelHandle.position" title="Link to this definition">¶</a></dt>
 <dd><p>Position of the scene node. This is equivalent to the t in
 <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automatically when assigned.</p>
 </dd></dl>
@@ -1234,7 +1240,7 @@ in <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automaticall
 
 <dl class="py property">
 <dt class="sig sig-object py" id="viser.LabelHandle.wxyz">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">wxyz</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#viser.LabelHandle.wxyz" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">wxyz</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float32</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#viser.LabelHandle.wxyz" title="Link to this definition">¶</a></dt>
 <dd><p>Orientation of the scene node. This is the quaternion representation of the R
 in <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automatically when assigned.</p>
 </dd></dl>
@@ -1280,7 +1286,7 @@ in <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automaticall
 
 <dl class="py property">
 <dt class="sig sig-object py" id="viser.MeshHandle.position">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">position</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#viser.MeshHandle.position" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">position</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float32</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#viser.MeshHandle.position" title="Link to this definition">¶</a></dt>
 <dd><p>Position of the scene node. This is equivalent to the t in
 <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automatically when assigned.</p>
 </dd></dl>
@@ -1318,7 +1324,7 @@ in <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automaticall
 
 <dl class="py property">
 <dt class="sig sig-object py" id="viser.MeshHandle.wxyz">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">wxyz</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#viser.MeshHandle.wxyz" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">wxyz</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float32</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#viser.MeshHandle.wxyz" title="Link to this definition">¶</a></dt>
 <dd><p>Orientation of the scene node. This is the quaternion representation of the R
 in <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automatically when assigned.</p>
 </dd></dl>
@@ -1418,7 +1424,7 @@ in <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automaticall
 
 <dl class="py property">
 <dt class="sig sig-object py" id="viser.BatchedMeshHandle.position">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">position</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#viser.BatchedMeshHandle.position" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">position</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float32</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#viser.BatchedMeshHandle.position" title="Link to this definition">¶</a></dt>
 <dd><p>Position of the scene node. This is equivalent to the t in
 <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automatically when assigned.</p>
 </dd></dl>
@@ -1456,7 +1462,7 @@ in <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automaticall
 
 <dl class="py property">
 <dt class="sig sig-object py" id="viser.BatchedMeshHandle.wxyz">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">wxyz</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#viser.BatchedMeshHandle.wxyz" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">wxyz</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float32</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#viser.BatchedMeshHandle.wxyz" title="Link to this definition">¶</a></dt>
 <dd><p>Orientation of the scene node. This is the quaternion representation of the R
 in <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automatically when assigned.</p>
 </dd></dl>
@@ -1534,6 +1540,12 @@ in <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automaticall
 </dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="viser.BatchedMeshHandle.batched_scales">
+<span class="sig-name descname"><span class="pre">batched_scales</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">npt.NDArray</span><span class="p"><span class="pre">[</span></span><span class="pre">np.float32</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#viser.BatchedMeshHandle.batched_scales" title="Link to this definition">¶</a></dt>
+<dd><p>Float array of shape (N,) or (N,3) representing uniform or per-axis (XYZ) scales. Synchronized automatically when assigned.</p>
+</dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="viser.BatchedMeshHandle.lod">
 <span class="sig-name descname"><span class="pre">lod</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'auto'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'off'</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#viser.BatchedMeshHandle.lod" title="Link to this definition">¶</a></dt>
 <dd><p>LOD settings. Either “auto”, “off”, or a tuple of (distance, ratio) pairs. Synchronized automatically when assigned.</p>
@@ -1574,7 +1586,7 @@ in <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automaticall
 
 <dl class="py property">
 <dt class="sig sig-object py" id="viser.BatchedGlbHandle.position">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">position</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#viser.BatchedGlbHandle.position" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">position</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float32</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#viser.BatchedGlbHandle.position" title="Link to this definition">¶</a></dt>
 <dd><p>Position of the scene node. This is equivalent to the t in
 <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automatically when assigned.</p>
 </dd></dl>
@@ -1612,7 +1624,7 @@ in <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automaticall
 
 <dl class="py property">
 <dt class="sig sig-object py" id="viser.BatchedGlbHandle.wxyz">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">wxyz</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#viser.BatchedGlbHandle.wxyz" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">wxyz</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float32</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#viser.BatchedGlbHandle.wxyz" title="Link to this definition">¶</a></dt>
 <dd><p>Orientation of the scene node. This is the quaternion representation of the R
 in <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automatically when assigned.</p>
 </dd></dl>
@@ -1651,6 +1663,12 @@ in <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automaticall
 <dt class="sig sig-object py" id="viser.BatchedGlbHandle.batched_positions">
 <span class="sig-name descname"><span class="pre">batched_positions</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">npt.NDArray</span><span class="p"><span class="pre">[</span></span><span class="pre">np.float32</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#viser.BatchedGlbHandle.batched_positions" title="Link to this definition">¶</a></dt>
 <dd><p>Float array of shape (N, 3) representing positions. Synchronized automatically when assigned.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="viser.BatchedGlbHandle.batched_scales">
+<span class="sig-name descname"><span class="pre">batched_scales</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">npt.NDArray</span><span class="p"><span class="pre">[</span></span><span class="pre">np.float32</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#viser.BatchedGlbHandle.batched_scales" title="Link to this definition">¶</a></dt>
+<dd><p>Float array of shape (N,) or (N,3) representing uniform or per-axis (XYZ) scales. Synchronized automatically when assigned.</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -1694,7 +1712,7 @@ in <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automaticall
 
 <dl class="py property">
 <dt class="sig sig-object py" id="viser.MeshSkinnedHandle.position">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">position</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#viser.MeshSkinnedHandle.position" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">position</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float32</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#viser.MeshSkinnedHandle.position" title="Link to this definition">¶</a></dt>
 <dd><p>Position of the scene node. This is equivalent to the t in
 <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automatically when assigned.</p>
 </dd></dl>
@@ -1732,7 +1750,7 @@ in <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automaticall
 
 <dl class="py property">
 <dt class="sig sig-object py" id="viser.MeshSkinnedHandle.wxyz">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">wxyz</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#viser.MeshSkinnedHandle.wxyz" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">wxyz</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float32</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#viser.MeshSkinnedHandle.wxyz" title="Link to this definition">¶</a></dt>
 <dd><p>Orientation of the scene node. This is the quaternion representation of the R
 in <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automatically when assigned.</p>
 </dd></dl>
@@ -1829,14 +1847,14 @@ in <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automaticall
 <dd><p>Handle for reading and writing the poses of bones in a skinned mesh.</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="viser.MeshSkinnedBoneHandle.wxyz">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">wxyz</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#viser.MeshSkinnedBoneHandle.wxyz" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">wxyz</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float32</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#viser.MeshSkinnedBoneHandle.wxyz" title="Link to this definition">¶</a></dt>
 <dd><p>Orientation of the bone. This is the quaternion representation of the R
 in <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automatically when assigned.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="viser.MeshSkinnedBoneHandle.position">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">position</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#viser.MeshSkinnedBoneHandle.position" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">position</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float32</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#viser.MeshSkinnedBoneHandle.position" title="Link to this definition">¶</a></dt>
 <dd><p>Position of the bone. This is equivalent to the t in
 <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automatically when assigned.</p>
 </dd></dl>
@@ -1855,7 +1873,7 @@ in <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automaticall
 
 <dl class="py property">
 <dt class="sig sig-object py" id="viser.PointCloudHandle.position">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">position</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#viser.PointCloudHandle.position" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">position</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float32</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#viser.PointCloudHandle.position" title="Link to this definition">¶</a></dt>
 <dd><p>Position of the scene node. This is equivalent to the t in
 <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automatically when assigned.</p>
 </dd></dl>
@@ -1879,7 +1897,7 @@ in <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automaticall
 
 <dl class="py property">
 <dt class="sig sig-object py" id="viser.PointCloudHandle.wxyz">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">wxyz</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#viser.PointCloudHandle.wxyz" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">wxyz</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float32</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#viser.PointCloudHandle.wxyz" title="Link to this definition">¶</a></dt>
 <dd><p>Orientation of the scene node. This is the quaternion representation of the R
 in <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automatically when assigned.</p>
 </dd></dl>
@@ -1930,7 +1948,7 @@ based on the current precision value. Updates to <cite>points</cite> should ther
 
 <dl class="py property">
 <dt class="sig sig-object py" id="viser.SplineCatmullRomHandle.position">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">position</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#viser.SplineCatmullRomHandle.position" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">position</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float32</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#viser.SplineCatmullRomHandle.position" title="Link to this definition">¶</a></dt>
 <dd><p>Position of the scene node. This is equivalent to the t in
 <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automatically when assigned.</p>
 </dd></dl>
@@ -1954,7 +1972,7 @@ based on the current precision value. Updates to <cite>points</cite> should ther
 
 <dl class="py property">
 <dt class="sig sig-object py" id="viser.SplineCatmullRomHandle.wxyz">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">wxyz</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#viser.SplineCatmullRomHandle.wxyz" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">wxyz</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float32</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#viser.SplineCatmullRomHandle.wxyz" title="Link to this definition">¶</a></dt>
 <dd><p>Orientation of the scene node. This is the quaternion representation of the R
 in <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automatically when assigned.</p>
 </dd></dl>
@@ -2015,7 +2033,7 @@ in <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automaticall
 
 <dl class="py property">
 <dt class="sig sig-object py" id="viser.SplineCubicBezierHandle.position">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">position</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#viser.SplineCubicBezierHandle.position" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">position</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float32</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#viser.SplineCubicBezierHandle.position" title="Link to this definition">¶</a></dt>
 <dd><p>Position of the scene node. This is equivalent to the t in
 <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automatically when assigned.</p>
 </dd></dl>
@@ -2039,7 +2057,7 @@ in <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automaticall
 
 <dl class="py property">
 <dt class="sig sig-object py" id="viser.SplineCubicBezierHandle.wxyz">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">wxyz</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#viser.SplineCubicBezierHandle.wxyz" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">wxyz</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float32</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#viser.SplineCubicBezierHandle.wxyz" title="Link to this definition">¶</a></dt>
 <dd><p>Orientation of the scene node. This is the quaternion representation of the R
 in <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automatically when assigned.</p>
 </dd></dl>
@@ -2109,7 +2127,7 @@ in <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automaticall
 
 <dl class="py property">
 <dt class="sig sig-object py" id="viser.TransformControlsHandle.position">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">position</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#viser.TransformControlsHandle.position" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">position</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float32</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#viser.TransformControlsHandle.position" title="Link to this definition">¶</a></dt>
 <dd><p>Position of the scene node. This is equivalent to the t in
 <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automatically when assigned.</p>
 </dd></dl>
@@ -2136,7 +2154,7 @@ in <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automaticall
 
 <dl class="py property">
 <dt class="sig sig-object py" id="viser.TransformControlsHandle.wxyz">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">wxyz</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#viser.TransformControlsHandle.wxyz" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">wxyz</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float32</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#viser.TransformControlsHandle.wxyz" title="Link to this definition">¶</a></dt>
 <dd><p>Orientation of the scene node. This is the quaternion representation of the R
 in <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automatically when assigned.</p>
 </dd></dl>
@@ -2299,7 +2317,7 @@ other objects. Synchronized automatically when assigned.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="viser.GaussianSplatHandle.position">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">position</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#viser.GaussianSplatHandle.position" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">position</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float32</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#viser.GaussianSplatHandle.position" title="Link to this definition">¶</a></dt>
 <dd><p>Position of the scene node. This is equivalent to the t in
 <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automatically when assigned.</p>
 </dd></dl>
@@ -2337,7 +2355,7 @@ other objects. Synchronized automatically when assigned.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="viser.GaussianSplatHandle.wxyz">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">wxyz</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#viser.GaussianSplatHandle.wxyz" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">wxyz</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float32</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#viser.GaussianSplatHandle.wxyz" title="Link to this definition">¶</a></dt>
 <dd><p>Orientation of the scene node. This is the quaternion representation of the R
 in <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automatically when assigned.</p>
 </dd></dl>
@@ -2371,7 +2389,7 @@ in <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automaticall
 
 <dl class="py property">
 <dt class="sig sig-object py" id="viser.DirectionalLightHandle.position">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">position</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#viser.DirectionalLightHandle.position" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">position</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float32</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#viser.DirectionalLightHandle.position" title="Link to this definition">¶</a></dt>
 <dd><p>Position of the scene node. This is equivalent to the t in
 <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automatically when assigned.</p>
 </dd></dl>
@@ -2395,7 +2413,7 @@ in <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automaticall
 
 <dl class="py property">
 <dt class="sig sig-object py" id="viser.DirectionalLightHandle.wxyz">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">wxyz</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#viser.DirectionalLightHandle.wxyz" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">wxyz</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float32</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#viser.DirectionalLightHandle.wxyz" title="Link to this definition">¶</a></dt>
 <dd><p>Orientation of the scene node. This is the quaternion representation of the R
 in <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automatically when assigned.</p>
 </dd></dl>
@@ -2432,7 +2450,7 @@ in <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automaticall
 
 <dl class="py property">
 <dt class="sig sig-object py" id="viser.AmbientLightHandle.position">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">position</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#viser.AmbientLightHandle.position" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">position</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float32</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#viser.AmbientLightHandle.position" title="Link to this definition">¶</a></dt>
 <dd><p>Position of the scene node. This is equivalent to the t in
 <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automatically when assigned.</p>
 </dd></dl>
@@ -2456,7 +2474,7 @@ in <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automaticall
 
 <dl class="py property">
 <dt class="sig sig-object py" id="viser.AmbientLightHandle.wxyz">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">wxyz</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#viser.AmbientLightHandle.wxyz" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">wxyz</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float32</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#viser.AmbientLightHandle.wxyz" title="Link to this definition">¶</a></dt>
 <dd><p>Orientation of the scene node. This is the quaternion representation of the R
 in <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automatically when assigned.</p>
 </dd></dl>
@@ -2487,7 +2505,7 @@ in <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automaticall
 
 <dl class="py property">
 <dt class="sig sig-object py" id="viser.HemisphereLightHandle.position">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">position</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#viser.HemisphereLightHandle.position" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">position</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float32</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#viser.HemisphereLightHandle.position" title="Link to this definition">¶</a></dt>
 <dd><p>Position of the scene node. This is equivalent to the t in
 <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automatically when assigned.</p>
 </dd></dl>
@@ -2511,7 +2529,7 @@ in <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automaticall
 
 <dl class="py property">
 <dt class="sig sig-object py" id="viser.HemisphereLightHandle.wxyz">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">wxyz</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#viser.HemisphereLightHandle.wxyz" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">wxyz</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float32</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#viser.HemisphereLightHandle.wxyz" title="Link to this definition">¶</a></dt>
 <dd><p>Orientation of the scene node. This is the quaternion representation of the R
 in <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automatically when assigned.</p>
 </dd></dl>
@@ -2548,7 +2566,7 @@ in <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automaticall
 
 <dl class="py property">
 <dt class="sig sig-object py" id="viser.PointLightHandle.position">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">position</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#viser.PointLightHandle.position" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">position</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float32</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#viser.PointLightHandle.position" title="Link to this definition">¶</a></dt>
 <dd><p>Position of the scene node. This is equivalent to the t in
 <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automatically when assigned.</p>
 </dd></dl>
@@ -2572,7 +2590,7 @@ in <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automaticall
 
 <dl class="py property">
 <dt class="sig sig-object py" id="viser.PointLightHandle.wxyz">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">wxyz</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#viser.PointLightHandle.wxyz" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">wxyz</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float32</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#viser.PointLightHandle.wxyz" title="Link to this definition">¶</a></dt>
 <dd><p>Orientation of the scene node. This is the quaternion representation of the R
 in <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automatically when assigned.</p>
 </dd></dl>
@@ -2621,7 +2639,7 @@ in <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automaticall
 
 <dl class="py property">
 <dt class="sig sig-object py" id="viser.RectAreaLightHandle.position">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">position</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#viser.RectAreaLightHandle.position" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">position</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float32</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#viser.RectAreaLightHandle.position" title="Link to this definition">¶</a></dt>
 <dd><p>Position of the scene node. This is equivalent to the t in
 <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automatically when assigned.</p>
 </dd></dl>
@@ -2645,7 +2663,7 @@ in <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automaticall
 
 <dl class="py property">
 <dt class="sig sig-object py" id="viser.RectAreaLightHandle.wxyz">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">wxyz</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#viser.RectAreaLightHandle.wxyz" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">wxyz</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float32</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#viser.RectAreaLightHandle.wxyz" title="Link to this definition">¶</a></dt>
 <dd><p>Orientation of the scene node. This is the quaternion representation of the R
 in <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automatically when assigned.</p>
 </dd></dl>
@@ -2688,7 +2706,7 @@ in <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automaticall
 
 <dl class="py property">
 <dt class="sig sig-object py" id="viser.SpotLightHandle.position">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">position</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#viser.SpotLightHandle.position" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">position</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float32</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#viser.SpotLightHandle.position" title="Link to this definition">¶</a></dt>
 <dd><p>Position of the scene node. This is equivalent to the t in
 <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automatically when assigned.</p>
 </dd></dl>
@@ -2712,7 +2730,7 @@ in <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automaticall
 
 <dl class="py property">
 <dt class="sig sig-object py" id="viser.SpotLightHandle.wxyz">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">wxyz</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#viser.SpotLightHandle.wxyz" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">wxyz</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float32</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#viser.SpotLightHandle.wxyz" title="Link to this definition">¶</a></dt>
 <dd><p>Orientation of the scene node. This is the quaternion representation of the R
 in <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automatically when assigned.</p>
 </dd></dl>
@@ -2879,6 +2897,7 @@ in <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automaticall
 <li><a class="reference internal" href="#viser.BatchedAxesHandle.wxyz"><code class="docutils literal notranslate"><span class="pre">BatchedAxesHandle.wxyz</span></code></a></li>
 <li><a class="reference internal" href="#viser.BatchedAxesHandle.batched_wxyzs"><code class="docutils literal notranslate"><span class="pre">BatchedAxesHandle.batched_wxyzs</span></code></a></li>
 <li><a class="reference internal" href="#viser.BatchedAxesHandle.batched_positions"><code class="docutils literal notranslate"><span class="pre">BatchedAxesHandle.batched_positions</span></code></a></li>
+<li><a class="reference internal" href="#viser.BatchedAxesHandle.batched_scales"><code class="docutils literal notranslate"><span class="pre">BatchedAxesHandle.batched_scales</span></code></a></li>
 <li><a class="reference internal" href="#viser.BatchedAxesHandle.axes_length"><code class="docutils literal notranslate"><span class="pre">BatchedAxesHandle.axes_length</span></code></a></li>
 <li><a class="reference internal" href="#viser.BatchedAxesHandle.axes_radius"><code class="docutils literal notranslate"><span class="pre">BatchedAxesHandle.axes_radius</span></code></a></li>
 </ul>
@@ -2992,6 +3011,7 @@ in <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automaticall
 <li><a class="reference internal" href="#viser.BatchedMeshHandle.receive_shadow"><code class="docutils literal notranslate"><span class="pre">BatchedMeshHandle.receive_shadow</span></code></a></li>
 <li><a class="reference internal" href="#viser.BatchedMeshHandle.batched_wxyzs"><code class="docutils literal notranslate"><span class="pre">BatchedMeshHandle.batched_wxyzs</span></code></a></li>
 <li><a class="reference internal" href="#viser.BatchedMeshHandle.batched_positions"><code class="docutils literal notranslate"><span class="pre">BatchedMeshHandle.batched_positions</span></code></a></li>
+<li><a class="reference internal" href="#viser.BatchedMeshHandle.batched_scales"><code class="docutils literal notranslate"><span class="pre">BatchedMeshHandle.batched_scales</span></code></a></li>
 <li><a class="reference internal" href="#viser.BatchedMeshHandle.lod"><code class="docutils literal notranslate"><span class="pre">BatchedMeshHandle.lod</span></code></a></li>
 </ul>
 </li>
@@ -3009,6 +3029,7 @@ in <cite>p_parent = [R | t] p_local</cite>. Synchronized to clients automaticall
 <li><a class="reference internal" href="#viser.BatchedGlbHandle.receive_shadow"><code class="docutils literal notranslate"><span class="pre">BatchedGlbHandle.receive_shadow</span></code></a></li>
 <li><a class="reference internal" href="#viser.BatchedGlbHandle.batched_wxyzs"><code class="docutils literal notranslate"><span class="pre">BatchedGlbHandle.batched_wxyzs</span></code></a></li>
 <li><a class="reference internal" href="#viser.BatchedGlbHandle.batched_positions"><code class="docutils literal notranslate"><span class="pre">BatchedGlbHandle.batched_positions</span></code></a></li>
+<li><a class="reference internal" href="#viser.BatchedGlbHandle.batched_scales"><code class="docutils literal notranslate"><span class="pre">BatchedGlbHandle.batched_scales</span></code></a></li>
 <li><a class="reference internal" href="#viser.BatchedGlbHandle.lod"><code class="docutils literal notranslate"><span class="pre">BatchedGlbHandle.lod</span></code></a></li>
 </ul>
 </li>
