@@ -12,7 +12,7 @@
         gtag('js', new Date());
         gtag('config', 'G-RRGY51J5ZH');
     </script>
-    <link rel="index" title="Index" href="../genindex/" /><link rel="search" title="Search" href="../search/" /><link rel="next" title="Embedding Visualizations" href="../embedded_visualizations/" /><link rel="prev" title="Frame Conventions" href="../conventions/" />
+    <link rel="index" title="Index" href="../genindex/" /><link rel="search" title="Search" href="../search/" /><link rel="next" title="Embedding Visualizations" href="../embedded_visualizations/" /><link rel="prev" title="Performance Tips" href="../performance_tips/" />
 
     <!-- Generated with Sphinx 8.0.2 and Furo 2024.08.06 -->
         <title>Development - viser</title>
@@ -379,6 +379,7 @@
 <p class="caption" role="heading"><span class="caption-text">Notes</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../conventions/">Frame Conventions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../performance_tips/">Performance Tips</a></li>
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Development</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../embedded_visualizations/">Embedding Visualizations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../citation/">Citation</a></li>
@@ -487,7 +488,7 @@ version compatibility to prevent security issues and crashes from mismatched ver
 <p>To synchronize message definitions and version information between the Python backend and TypeScript frontend,
 use the <code class="docutils literal notranslate"><span class="pre">sync_client_server.py</span></code> script:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>~/viser
-python<span class="w"> </span>sync_client_server.py
+python<span class="w"> </span>sync_client_server.py<span class="w"> </span>--sync-messages<span class="w"> </span>--sync-version
 </pre></div>
 </div>
 <p>This script:</p>
@@ -527,10 +528,9 @@ steps.</p>
 <p><strong>Installing dependencies.</strong></p>
 <ol class="arabic">
 <li><p><a class="reference external" href="https://nodejs.dev/en/download/package-manager">Install nodejs.</a></p></li>
-<li><p><a class="reference external" href="https://yarnpkg.com/getting-started/install">Install yarn.</a></p></li>
 <li><p>Install dependencies.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>~/viser/src/viser/client
-yarn<span class="w"> </span>install
+npm<span class="w"> </span>install
 </pre></div>
 </div>
 </li>
@@ -538,7 +538,7 @@ yarn<span class="w"> </span>install
 <p><strong>Launching client.</strong></p>
 <p>To launch the client, we can run:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>~/viser/src/viser/client
-yarn<span class="w"> </span>start
+npm<span class="w"> </span>run<span class="w"> </span>dev
 </pre></div>
 </div>
 <p>from the <code class="docutils literal notranslate"><span class="pre">viser/src/viser/client</span></code> directory. After opening the client in a web
@@ -569,14 +569,14 @@ one of:</p>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="../conventions/">
+          <a class="prev-page" href="../performance_tips/">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">Frame Conventions</div>
+                <div class="title">Performance Tips</div>
                 
               </div>
             </a>

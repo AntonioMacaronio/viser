@@ -378,6 +378,7 @@
 <p class="caption" role="heading"><span class="caption-text">Notes</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../conventions/">Frame Conventions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../performance_tips/">Performance Tips</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../development/">Development</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../embedded_visualizations/">Embedding Visualizations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../citation/">Citation</a></li>
@@ -424,6 +425,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Coroutine</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">concurrent.futures</span><span class="w"> </span><span class="kn">import</span> <span class="n">ThreadPoolExecutor</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">partial</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">TYPE_CHECKING</span><span class="p">,</span>
     <span class="n">Callable</span><span class="p">,</span>
@@ -435,15 +437,15 @@
     <span class="n">overload</span><span class="p">,</span>
 <span class="p">)</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">cv2</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">ParamSpec</span><span class="p">,</span> <span class="n">TypeAlias</span><span class="p">,</span> <span class="n">assert_never</span><span class="p">,</span> <span class="n">deprecated</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">ParamSpec</span><span class="p">,</span> <span class="n">TypeAlias</span><span class="p">,</span> <span class="n">deprecated</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">viser._backwards_compat_shims</span><span class="w"> </span><span class="kn">import</span> <span class="n">deprecated_positional_shim</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">_messages</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">transforms</span> <span class="k">as</span> <span class="n">tf</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">._assignable_props_api</span><span class="w"> </span><span class="kn">import</span> <span class="n">colors_to_uint8</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">._image_encoding</span><span class="w"> </span><span class="kn">import</span> <span class="n">cv2_imencode_with_fallback</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">._scene_handles</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">AmbientLightHandle</span><span class="p">,</span>
     <span class="n">BatchedAxesHandle</span><span class="p">,</span>
@@ -525,24 +527,10 @@
         <span class="n">resolved_format</span> <span class="o">=</span> <span class="nb">format</span>
 
     <span class="c1"># Convert RGB to BGR for OpenCV encoding.</span>
-    <span class="n">image</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span>
-        <span class="n">image</span><span class="p">,</span> <span class="p">{</span><span class="mi">3</span><span class="p">:</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_RGB2BGR</span><span class="p">,</span> <span class="mi">4</span><span class="p">:</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_RGBA2BGRA</span><span class="p">}[</span><span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span>
+    <span class="n">encoded</span> <span class="o">=</span> <span class="n">cv2_imencode_with_fallback</span><span class="p">(</span>
+        <span class="n">resolved_format</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="n">jpeg_quality</span><span class="p">,</span> <span class="n">channel_ordering</span><span class="o">=</span><span class="s2">&quot;rgb&quot;</span>
     <span class="p">)</span>
-    <span class="k">if</span> <span class="n">resolved_format</span> <span class="o">==</span> <span class="s2">&quot;png&quot;</span><span class="p">:</span>
-        <span class="n">success</span><span class="p">,</span> <span class="n">encoded</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">imencode</span><span class="p">(</span><span class="s2">&quot;.png&quot;</span><span class="p">,</span> <span class="n">image</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="n">resolved_format</span> <span class="o">==</span> <span class="s2">&quot;jpeg&quot;</span><span class="p">:</span>
-        <span class="n">encode_param</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="nb">int</span><span class="p">(</span><span class="n">cv2</span><span class="o">.</span><span class="n">IMWRITE_JPEG_QUALITY</span><span class="p">),</span>
-            <span class="mi">75</span> <span class="k">if</span> <span class="n">jpeg_quality</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">jpeg_quality</span><span class="p">,</span>
-        <span class="p">]</span>
-        <span class="n">success</span><span class="p">,</span> <span class="n">encoded</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">imencode</span><span class="p">(</span><span class="s2">&quot;.jpg&quot;</span><span class="p">,</span> <span class="n">image</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="mi">3</span><span class="p">],</span> <span class="n">encode_param</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">assert_never</span><span class="p">(</span><span class="n">resolved_format</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">success</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to encode image to </span><span class="si">{</span><span class="nb">format</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">resolved_format</span><span class="p">,</span> <span class="n">encoded</span><span class="o">.</span><span class="n">tobytes</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">resolved_format</span><span class="p">,</span> <span class="n">encoded</span>
 
 
 <span class="n">TVector</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;TVector&quot;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="nb">tuple</span><span class="p">)</span>
@@ -1095,7 +1083,7 @@
         <span class="n">position</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span>
         <span class="n">visible</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">cast_shadow</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">receive_shadow</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">receive_shadow</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">GlbHandle</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Add a general 3D asset via binary glTF (GLB).</span>
 
@@ -1114,7 +1102,10 @@
 <span class="sd">            position: Translation to parent frame from local frame (t_pl).</span>
 <span class="sd">            visible: Whether or not this scene node is initially visible.</span>
 <span class="sd">            cast_shadow: Whether this node should cast shadows.</span>
-<span class="sd">            receive_shadow: Whether this node should receive shadows.</span>
+<span class="sd">            receive_shadow: Whether this node should receive shadows. If True,</span>
+<span class="sd">                receives shadows normally. If False, no shadows. If a float</span>
+<span class="sd">                (0-1), shadows are rendered with a fixed opacity regardless of</span>
+<span class="sd">                lighting conditions.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            Handle for manipulating scene node.</span>
@@ -1451,7 +1442,7 @@
         <span class="n">position</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span>
         <span class="n">visible</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">cast_shadow</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">receive_shadow</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">receive_shadow</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">variant</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;wireframe&quot;</span><span class="p">,</span> <span class="s2">&quot;filled&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;wireframe&quot;</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CameraFrustumHandle</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Add a camera frustum to the scene for visualization.</span>
@@ -1478,7 +1469,10 @@
 <span class="sd">            position: Translation to parent frame from local frame (t_pl).</span>
 <span class="sd">            visible: Whether or not this scene node is initially visible.</span>
 <span class="sd">            cast_shadow: Whether this frustum should cast shadows.</span>
-<span class="sd">            receive_shadow: Whether this frustum should receive shadows.</span>
+<span class="sd">            receive_shadow: Whether this frustum should receive shadows. If True,</span>
+<span class="sd">                receives shadows normally. If False, no shadows. If a float</span>
+<span class="sd">                (0-1), shadows are rendered with a fixed opacity regardless of</span>
+<span class="sd">                lighting conditions.</span>
 <span class="sd">            variant: Variant of the frustum visualization. &#39;wireframe&#39; shows lines only, &#39;filled&#39; adds semi-transparent faces.</span>
 
 <span class="sd">        Returns:</span>
@@ -1642,15 +1636,16 @@
 
 <div class="viewcode-block" id="SceneApi.add_grid">
 <a class="viewcode-back" href="../../../api/core/scene_api/#viser.SceneApi.add_grid">[docs]</a>
-    <span class="nd">@deprecated_positional_shim</span>
+    <span class="nd">@partial</span><span class="p">(</span>
+        <span class="n">deprecated_positional_shim</span><span class="p">,</span>
+        <span class="n">deprecated_kwargs</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;width_segments&quot;</span><span class="p">,</span> <span class="s2">&quot;height_segments&quot;</span><span class="p">),</span>
+    <span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">add_grid</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">width</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">10.0</span><span class="p">,</span>
         <span class="n">height</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">10.0</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
-        <span class="n">width_segments</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
-        <span class="n">height_segments</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
         <span class="n">plane</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;xz&quot;</span><span class="p">,</span> <span class="s2">&quot;xy&quot;</span><span class="p">,</span> <span class="s2">&quot;yx&quot;</span><span class="p">,</span> <span class="s2">&quot;yz&quot;</span><span class="p">,</span> <span class="s2">&quot;zx&quot;</span><span class="p">,</span> <span class="s2">&quot;zy&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;xy&quot;</span><span class="p">,</span>
         <span class="n">cell_color</span><span class="p">:</span> <span class="n">RgbTupleOrArray</span> <span class="o">=</span> <span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">200</span><span class="p">),</span>
         <span class="n">cell_thickness</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
@@ -1658,6 +1653,10 @@
         <span class="n">section_color</span><span class="p">:</span> <span class="n">RgbTupleOrArray</span> <span class="o">=</span> <span class="p">(</span><span class="mi">140</span><span class="p">,</span> <span class="mi">140</span><span class="p">,</span> <span class="mi">140</span><span class="p">),</span>
         <span class="n">section_thickness</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
         <span class="n">section_size</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
+        <span class="n">infinite_grid</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">fade_distance</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">100.0</span><span class="p">,</span>
+        <span class="n">fade_strength</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
+        <span class="n">fade_from</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;camera&quot;</span><span class="p">,</span> <span class="s2">&quot;origin&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;camera&quot;</span><span class="p">,</span>
         <span class="n">shadow_opacity</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.125</span><span class="p">,</span>
         <span class="n">wxyz</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span>
         <span class="n">position</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span>
@@ -1671,8 +1670,6 @@
 <span class="sd">            name: Name of the grid.</span>
 <span class="sd">            width: Width of the grid.</span>
 <span class="sd">            height: Height of the grid.</span>
-<span class="sd">            width_segments: Number of segments along the width.</span>
-<span class="sd">            height_segments: Number of segments along the height.</span>
 <span class="sd">            plane: The plane in which the grid is oriented (e.g., &#39;xy&#39;, &#39;yz&#39;).</span>
 <span class="sd">            cell_color: Color of the grid cells as an RGB tuple.</span>
 <span class="sd">            cell_thickness: Thickness of the grid lines.</span>
@@ -1681,6 +1678,10 @@
 <span class="sd">            section_thickness: Thickness of the section lines.</span>
 <span class="sd">            section_size: Size of each section in the grid.</span>
 <span class="sd">            shadow_opacity: Opacity of shadows casted onto grid plane, 0: no shadows, 1: black shadows</span>
+<span class="sd">            infinite_grid: Whether the grid should appear infinite. If `True`, the width and height are ignored.</span>
+<span class="sd">            fade_distance: Distance at which the grid fades out.</span>
+<span class="sd">            fade_strength: Strength of the fade effect.</span>
+<span class="sd">            fade_from: Whether the grid should fade based on distance from the camera or the origin.</span>
 <span class="sd">            wxyz: Quaternion rotation to parent frame from local frame (R_pl).</span>
 <span class="sd">            position: Translation to parent frame from local frame (t_pl).</span>
 <span class="sd">            visible: Whether or not this scene node is initially visible.</span>
@@ -1693,8 +1694,6 @@
             <span class="n">props</span><span class="o">=</span><span class="n">_messages</span><span class="o">.</span><span class="n">GridProps</span><span class="p">(</span>
                 <span class="n">width</span><span class="o">=</span><span class="n">width</span><span class="p">,</span>
                 <span class="n">height</span><span class="o">=</span><span class="n">height</span><span class="p">,</span>
-                <span class="n">width_segments</span><span class="o">=</span><span class="n">width_segments</span><span class="p">,</span>
-                <span class="n">height_segments</span><span class="o">=</span><span class="n">height_segments</span><span class="p">,</span>
                 <span class="n">plane</span><span class="o">=</span><span class="n">plane</span><span class="p">,</span>
                 <span class="n">cell_color</span><span class="o">=</span><span class="n">_encode_rgb</span><span class="p">(</span><span class="n">cell_color</span><span class="p">),</span>
                 <span class="n">cell_thickness</span><span class="o">=</span><span class="n">cell_thickness</span><span class="p">,</span>
@@ -1702,6 +1701,10 @@
                 <span class="n">section_color</span><span class="o">=</span><span class="n">_encode_rgb</span><span class="p">(</span><span class="n">section_color</span><span class="p">),</span>
                 <span class="n">section_thickness</span><span class="o">=</span><span class="n">section_thickness</span><span class="p">,</span>
                 <span class="n">section_size</span><span class="o">=</span><span class="n">section_size</span><span class="p">,</span>
+                <span class="n">infinite_grid</span><span class="o">=</span><span class="n">infinite_grid</span><span class="p">,</span>
+                <span class="n">fade_distance</span><span class="o">=</span><span class="n">fade_distance</span><span class="p">,</span>
+                <span class="n">fade_strength</span><span class="o">=</span><span class="n">fade_strength</span><span class="p">,</span>
+                <span class="n">fade_from</span><span class="o">=</span><span class="n">fade_from</span><span class="p">,</span>
                 <span class="n">shadow_opacity</span><span class="o">=</span><span class="n">shadow_opacity</span><span class="p">,</span>
             <span class="p">),</span>
         <span class="p">)</span>
@@ -1821,7 +1824,7 @@
         <span class="n">flat_shading</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">side</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;front&quot;</span><span class="p">,</span> <span class="s2">&quot;back&quot;</span><span class="p">,</span> <span class="s2">&quot;double&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;front&quot;</span><span class="p">,</span>
         <span class="n">cast_shadow</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">receive_shadow</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">receive_shadow</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">wxyz</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span>
         <span class="n">position</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span>
         <span class="n">visible</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
@@ -1849,7 +1852,10 @@
 <span class="sd">                when wireframe=True.</span>
 <span class="sd">            side: Side of the surface to render (&#39;front&#39;, &#39;back&#39;, &#39;double&#39;).</span>
 <span class="sd">            cast_shadow: Whether this skinned mesh should cast shadows.</span>
-<span class="sd">            receive_shadow: Whether this skinned mesh should receive shadows.</span>
+<span class="sd">            receive_shadow: Whether this skinned mesh should receive shadows. If True,</span>
+<span class="sd">                receives shadows normally. If False, no shadows. If a float</span>
+<span class="sd">                (0-1), shadows are rendered with a fixed opacity regardless of</span>
+<span class="sd">                lighting conditions.</span>
 <span class="sd">            wxyz: Quaternion rotation to parent frame from local frame (R_pl).</span>
 <span class="sd">            position: Translation from parent frame to local frame (t_pl).</span>
 <span class="sd">            visible: Whether or not this mesh is initially visible.</span>
@@ -1938,7 +1944,7 @@
         <span class="n">flat_shading</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">side</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;front&quot;</span><span class="p">,</span> <span class="s2">&quot;back&quot;</span><span class="p">,</span> <span class="s2">&quot;double&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;front&quot;</span><span class="p">,</span>
         <span class="n">cast_shadow</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">receive_shadow</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">receive_shadow</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">wxyz</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span>
         <span class="n">position</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span>
         <span class="n">visible</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
@@ -1960,7 +1966,10 @@
 <span class="sd">                when wireframe=True.</span>
 <span class="sd">            side: Side of the surface to render (&#39;front&#39;, &#39;back&#39;, &#39;double&#39;).</span>
 <span class="sd">            cast_shadow: Whether this mesh should cast shadows.</span>
-<span class="sd">            receive_shadow: Whether this mesh should receive shadows.</span>
+<span class="sd">            receive_shadow: Whether this mesh should receive shadows. If True,</span>
+<span class="sd">                receives shadows normally. If False, no shadows. If a float</span>
+<span class="sd">                (0-1), shadows are rendered with a fixed opacity regardless of</span>
+<span class="sd">                lighting conditions.</span>
 <span class="sd">            wxyz: Quaternion rotation to parent frame from local frame (R_pl).</span>
 <span class="sd">            position: Translation from parent frame to local frame (t_pl).</span>
 <span class="sd">            visible: Whether or not this mesh is initially visible.</span>
@@ -2008,6 +2017,8 @@
         <span class="n">wxyz</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span>
         <span class="n">position</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span>
         <span class="n">visible</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">cast_shadow</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">receive_shadow</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">GlbHandle</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Add a trimesh mesh to the scene. Internally calls `self.add_glb()`.</span>
 
@@ -2019,6 +2030,11 @@
 <span class="sd">            wxyz: Quaternion rotation to parent frame from local frame (R_pl).</span>
 <span class="sd">            position: Translation to parent frame from local frame (t_pl).</span>
 <span class="sd">            visible: Whether or not this scene node is initially visible.</span>
+<span class="sd">            cast_shadow: Whether this mesh should cast shadows.</span>
+<span class="sd">            receive_shadow: Whether this mesh should receive shadows. If True,</span>
+<span class="sd">                receives shadows normally. If False, no shadows. If a float</span>
+<span class="sd">                (0-1), shadows are rendered with a fixed opacity regardless of</span>
+<span class="sd">                lighting conditions.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            Handle for manipulating scene node.</span>
@@ -2034,6 +2050,8 @@
                 <span class="n">wxyz</span><span class="o">=</span><span class="n">wxyz</span><span class="p">,</span>
                 <span class="n">position</span><span class="o">=</span><span class="n">position</span><span class="p">,</span>
                 <span class="n">visible</span><span class="o">=</span><span class="n">visible</span><span class="p">,</span>
+                <span class="n">cast_shadow</span><span class="o">=</span><span class="n">cast_shadow</span><span class="p">,</span>
+                <span class="n">receive_shadow</span><span class="o">=</span><span class="n">receive_shadow</span><span class="p">,</span>
             <span class="p">)</span></div>
 
 
@@ -2379,7 +2397,7 @@
         <span class="n">flat_shading</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">side</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;front&quot;</span><span class="p">,</span> <span class="s2">&quot;back&quot;</span><span class="p">,</span> <span class="s2">&quot;double&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;front&quot;</span><span class="p">,</span>
         <span class="n">cast_shadow</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">receive_shadow</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">receive_shadow</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">wxyz</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span>
         <span class="n">position</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span>
         <span class="n">visible</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
@@ -2397,7 +2415,10 @@
 <span class="sd">            flat_shading: Whether to do flat shading.</span>
 <span class="sd">            side: Side of the surface to render (&#39;front&#39;, &#39;back&#39;, &#39;double&#39;).</span>
 <span class="sd">            cast_shadow: Whether this box should cast shadows.</span>
-<span class="sd">            receive_shadow: Whether this box should receive shadows.</span>
+<span class="sd">            receive_shadow: Whether this box should receive shadows. If True,</span>
+<span class="sd">                receives shadows normally. If False, no shadows. If a float</span>
+<span class="sd">                (0-1), shadows are rendered with a fixed opacity regardless of</span>
+<span class="sd">                lighting conditions.</span>
 <span class="sd">            wxyz: Quaternion rotation to parent frame from local frame (R_pl).</span>
 <span class="sd">            position: Translation from parent frame to local frame (t_pl).</span>
 <span class="sd">            visible: Whether or not this box is initially visible.</span>
@@ -2456,7 +2477,7 @@
         <span class="n">flat_shading</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">side</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;front&quot;</span><span class="p">,</span> <span class="s2">&quot;back&quot;</span><span class="p">,</span> <span class="s2">&quot;double&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;front&quot;</span><span class="p">,</span>
         <span class="n">cast_shadow</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">receive_shadow</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">receive_shadow</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">wxyz</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span>
         <span class="n">position</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span>
         <span class="n">visible</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
@@ -2475,7 +2496,10 @@
 <span class="sd">            flat_shading: Whether to do flat shading.</span>
 <span class="sd">            side: Side of the surface to render (&#39;front&#39;, &#39;back&#39;, &#39;double&#39;).</span>
 <span class="sd">            cast_shadow: Whether this icosphere should cast shadows.</span>
-<span class="sd">            receive_shadow: Whether this icosphere should receive shadows.</span>
+<span class="sd">            receive_shadow: Whether this icosphere should receive shadows. If True,</span>
+<span class="sd">                receives shadows normally. If False, no shadows. If a float</span>
+<span class="sd">                (0-1), shadows are rendered with a fixed opacity regardless of</span>
+<span class="sd">                lighting conditions.</span>
 <span class="sd">            wxyz: Quaternion rotation to parent frame from local frame (R_pl).</span>
 <span class="sd">            position: Translation from parent frame to local frame (t_pl).</span>
 <span class="sd">            visible: Whether or not this icosphere is initially visible.</span>
@@ -2543,13 +2567,13 @@
             <span class="n">intdepth</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">depth</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">*</span><span class="n">depth</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="mi">2</span><span class="p">],</span> <span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
             <span class="k">assert</span> <span class="n">intdepth</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">(</span><span class="o">*</span><span class="n">depth</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="mi">2</span><span class="p">],</span> <span class="mi">4</span><span class="p">)</span>
 
-            <span class="c1"># Important: cv2 expects BGR format, so we&#39;ll need to re-order on</span>
-            <span class="c1"># the client side.</span>
+            <span class="c1"># cv2 expects BGR format, so we&#39;ll need to re-order on the client</span>
+            <span class="c1"># side. This will compromise performance slightly if OpenCV is not</span>
+            <span class="c1"># installed.</span>
             <span class="n">depth_bgr</span> <span class="o">=</span> <span class="n">intdepth</span>
-            <span class="n">success</span><span class="p">,</span> <span class="n">encoded</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">imencode</span><span class="p">(</span><span class="s2">&quot;.png&quot;</span><span class="p">,</span> <span class="n">depth_bgr</span><span class="p">)</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">success</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Failed to encode depth image to PNG&quot;</span><span class="p">)</span>
-            <span class="n">depth_bytes</span> <span class="o">=</span> <span class="n">encoded</span><span class="o">.</span><span class="n">tobytes</span><span class="p">()</span>
+            <span class="n">depth_bytes</span> <span class="o">=</span> <span class="n">cv2_imencode_with_fallback</span><span class="p">(</span>
+                <span class="s2">&quot;png&quot;</span><span class="p">,</span> <span class="n">depth_bgr</span><span class="p">,</span> <span class="n">jpeg_quality</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">channel_ordering</span><span class="o">=</span><span class="s2">&quot;bgr&quot;</span>
+            <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_websock_interface</span><span class="o">.</span><span class="n">queue_message</span><span class="p">(</span>
             <span class="n">_messages</span><span class="o">.</span><span class="n">BackgroundImageMessage</span><span class="p">(</span>
@@ -2573,7 +2597,7 @@
         <span class="nb">format</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;auto&quot;</span><span class="p">,</span> <span class="s2">&quot;png&quot;</span><span class="p">,</span> <span class="s2">&quot;jpeg&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;auto&quot;</span><span class="p">,</span>
         <span class="n">jpeg_quality</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">cast_shadow</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">receive_shadow</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">receive_shadow</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">wxyz</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span>
         <span class="n">position</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span>
         <span class="n">visible</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
@@ -2589,7 +2613,10 @@
 <span class="sd">            format: Format to transport and display the image using. &#39;auto&#39; will use PNG for RGBA images and JPEG for RGB.</span>
 <span class="sd">            jpeg_quality: Quality of the jpeg image (if jpeg format is used).</span>
 <span class="sd">            cast_shadow: Whether this image should cast shadows.</span>
-<span class="sd">            receive_shadow: Whether this image should receive shadows.</span>
+<span class="sd">            receive_shadow: Whether this image should receive shadows. If True,</span>
+<span class="sd">                receives shadows normally. If False, no shadows. If a float</span>
+<span class="sd">                (0-1), shadows are rendered with a fixed opacity regardless of</span>
+<span class="sd">                lighting conditions.</span>
 <span class="sd">            wxyz: Quaternion rotation to parent frame from local frame (R_pl).</span>
 <span class="sd">            position: Translation from parent frame to local frame (t_pl).</span>
 <span class="sd">            visible: Whether or not this image is initially visible.</span>

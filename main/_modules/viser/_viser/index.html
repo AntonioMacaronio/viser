@@ -378,6 +378,7 @@
 <p class="caption" role="heading"><span class="caption-text">Notes</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../conventions/">Frame Conventions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../performance_tips/">Performance Tips</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../development/">Development</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../embedded_visualizations/">Embedding Visualizations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../citation/">Citation</a></li>
@@ -434,10 +435,6 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">imageio.v3</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">iio</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy.typing</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">npt</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">rich</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">rich</span><span class="w"> </span><span class="kn">import</span> <span class="n">box</span><span class="p">,</span> <span class="n">style</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">rich.panel</span><span class="w"> </span><span class="kn">import</span> <span class="n">Panel</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">rich.table</span><span class="w"> </span><span class="kn">import</span> <span class="n">Table</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">deprecated</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">_client_autobuild</span><span class="p">,</span> <span class="n">_messages</span><span class="p">,</span> <span class="n">infra</span>
@@ -546,8 +543,9 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Corresponds to the t in `P_world = [R | t] p_camera`. Synchronized</span>
 <span class="sd">        automatically when assigned.</span>
 
-<span class="sd">        The `look_at` point and `up_direction` vectors are maintained when updating</span>
-<span class="sd">        `position`, which means that updates to `position` will often also affect `wxyz`.</span>
+<span class="sd">        To preserve the camera orientation, position updates translate both the camera</span>
+<span class="sd">        and its `look_at` point together. To change position while looking at a fixed</span>
+<span class="sd">        point, set `look_at` after updating `position`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_state</span><span class="o">.</span><span class="n">update_timestamp</span> <span class="o">!=</span> <span class="mf">0.0</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_state</span><span class="o">.</span><span class="n">position</span>
@@ -1201,6 +1199,11 @@
         <span class="p">)</span>
 
         <span class="c1"># Form status print.</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">rich</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">rich</span><span class="w"> </span><span class="kn">import</span> <span class="n">box</span><span class="p">,</span> <span class="n">style</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">rich.panel</span><span class="w"> </span><span class="kn">import</span> <span class="n">Panel</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">rich.table</span><span class="w"> </span><span class="kn">import</span> <span class="n">Table</span>
+
         <span class="n">port</span> <span class="o">=</span> <span class="n">server</span><span class="o">.</span><span class="n">_port</span>  <span class="c1"># Port may have changed.</span>
         <span class="k">if</span> <span class="n">host</span> <span class="o">==</span> <span class="s2">&quot;0.0.0.0&quot;</span><span class="p">:</span>
             <span class="c1"># 0.0.0.0 is not a real IP and people are often confused by it;</span>
@@ -1222,7 +1225,7 @@
         <span class="n">rich</span><span class="o">.</span><span class="n">print</span><span class="p">(</span>
             <span class="n">Panel</span><span class="p">(</span>
                 <span class="n">table</span><span class="p">,</span>
-                <span class="n">title</span><span class="o">=</span><span class="s2">&quot;[bold]viser[/bold]&quot;</span>
+                <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;[bold]viser[/bold] [dim](listening *:</span><span class="si">{</span><span class="n">port</span><span class="si">}</span><span class="s2">)[/dim]&quot;</span>
                 <span class="k">if</span> <span class="n">host</span> <span class="o">==</span> <span class="s2">&quot;0.0.0.0&quot;</span>
                 <span class="k">else</span> <span class="s2">&quot;[bold]viser[/bold]&quot;</span><span class="p">,</span>
                 <span class="n">expand</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
@@ -1347,6 +1350,8 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># Create a new tunnel!.</span>
             <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="kn">import</span><span class="w"> </span><span class="nn">rich</span>
+
                 <span class="n">rich</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;[bold](viser)[/bold] Share URL requested!&quot;</span><span class="p">)</span>
 
             <span class="n">connect_event</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Event</span><span class="p">()</span>
@@ -1357,6 +1362,8 @@
 
             <span class="nd">@self</span><span class="o">.</span><span class="n">_share_tunnel</span><span class="o">.</span><span class="n">on_disconnect</span>
             <span class="k">def</span><span class="w"> </span><span class="nf">_</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="kn">import</span><span class="w"> </span><span class="nn">rich</span>
+
                 <span class="n">rich</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;[bold](viser)[/bold] Disconnected from share URL&quot;</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_share_tunnel</span> <span class="o">=</span> <span class="kc">None</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_websock_server</span><span class="o">.</span><span class="n">queue_message</span><span class="p">(</span><span class="n">_messages</span><span class="o">.</span><span class="n">ShareUrlUpdated</span><span class="p">(</span><span class="kc">None</span><span class="p">))</span>
@@ -1366,6 +1373,8 @@
                 <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_share_tunnel</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
                 <span class="n">share_url</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_share_tunnel</span><span class="o">.</span><span class="n">get_url</span><span class="p">()</span>
                 <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                    <span class="kn">import</span><span class="w"> </span><span class="nn">rich</span>
+
                     <span class="k">if</span> <span class="n">share_url</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                         <span class="n">rich</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;[bold](viser)[/bold] Could not generate share URL&quot;</span><span class="p">)</span>
                     <span class="k">else</span><span class="p">:</span>
@@ -1388,6 +1397,8 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_share_tunnel</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_share_tunnel</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
+            <span class="kn">import</span><span class="w"> </span><span class="nn">rich</span>
+
             <span class="n">rich</span><span class="o">.</span><span class="n">print</span><span class="p">(</span>
                 <span class="s2">&quot;[bold](viser)[/bold] Tried to disconnect from share URL, but already disconnected&quot;</span>
             <span class="p">)</span></div>
