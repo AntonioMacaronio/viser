@@ -1,10 +1,11 @@
 """GUI layouts
 
-Organize GUI controls using folders, tabs, and nested structures for better user experience.
+Organize GUI controls using folders, forms, tabs, and nested structures for better user experience.
 
 **Features:**
 
 * :meth:`viser.GuiApi.add_folder` for grouping related controls
+* :meth:`viser.GuiApi.add_form` for groups that commit together on submit
 * :meth:`viser.GuiApi.add_tab_group` and :meth:`viser.GuiTabGroupHandle.add_tab` for tabbed interfaces
 * Nested folder hierarchies for complex layouts
 * Context managers for automatic grouping
@@ -18,17 +19,22 @@ import viser
 def main() -> None:
     server = viser.ViserServer()
 
-    # Example 1: Organizing with folders
-    with server.gui.add_folder("Camera Controls"):
-        with server.gui.add_folder("Position"):
-            server.gui.add_slider("X", min=-5.0, max=5.0, step=0.1, initial_value=0.0)
-            server.gui.add_slider("Y", min=-5.0, max=5.0, step=0.1, initial_value=2.0)
-            server.gui.add_slider("Z", min=-5.0, max=5.0, step=0.1, initial_value=3.0)
+    # A form groups inputs that are committed together. on_update callbacks on
+    # child inputs still fire per-keystroke, but on_submit only fires when the
+    # user presses Enter or clicks the button. A dirty indicator (*) appears
+    # next to the label whenever any input has been edited since the last submit.
+    with server.gui.add_form("Camera Controls") as camera_form:
+        cam_x = server.gui.add_number("X", initial_value=0.0, step=0.1)
+        cam_y = server.gui.add_number("Y", initial_value=2.0, step=0.1)
+        cam_z = server.gui.add_number("Z", initial_value=3.0, step=0.1)
+        go_button = server.gui.add_button("Go")
 
-        with server.gui.add_folder("Rotation"):
-            server.gui.add_slider("Pitch", min=-180, max=180, step=1, initial_value=0)
-            server.gui.add_slider("Yaw", min=-180, max=180, step=1, initial_value=0)
-            server.gui.add_slider("Roll", min=-180, max=180, step=1, initial_value=0)
+    go_button.on_click(lambda _: camera_form.submit())
+
+    @camera_form.on_submit
+    def _(_) -> None:
+        for client in server.get_clients().values():
+            client.camera.position = (cam_x.value, cam_y.value, cam_z.value)
 
     # Example 2: Scene objects organization
     with server.gui.add_folder("Scene Objects"):
@@ -39,7 +45,7 @@ def main() -> None:
             )
             server.gui.add_rgb("Color", initial_value=(255, 255, 255))
 
-        with server.gui.add_folder("Objects"):  # GUI objects folder
+        with server.gui.add_folder("Objects"):
             show_axes = server.gui.add_checkbox(
                 "Show Coordinate Axes", initial_value=True
             )
@@ -81,12 +87,6 @@ def main() -> None:
 
     if show_axes.value:
         server.scene.add_frame("axes", axes_length=1.0, axes_radius=0.02)
-
-    print("This example shows GUI organization with folders.")
-    print("The sphere demonstrates some interactive controls.")
-
-    print("Explore the organized GUI controls!")
-    print("Notice how folders help group related functionality.")
 
     while True:
         time.sleep(0.1)
