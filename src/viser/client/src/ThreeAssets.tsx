@@ -35,8 +35,11 @@ const PointCloudMaterial = /* @__PURE__ */ shaderMaterial(
 
   varying vec3 vPosition;
   varying vec3 vColor; // in the vertex shader
+  varying vec3 vInnerSqCol;
+  varying vec3 vOuterSqCol;
   uniform float scale;
   uniform vec3 uniformColor;
+  uniform float point_shading_enabled;
 
   #include <fog_pars_vertex>
 
@@ -47,6 +50,10 @@ const PointCloudMaterial = /* @__PURE__ */ shaderMaterial(
       #else
       vColor = uniformColor;
       #endif
+      // Pre-compute per-vertex shading bounds (constant across all fragments of a point).
+      vec3 sq_col = vColor * vColor;
+      vInnerSqCol = max(sq_col - 0.02, 0.0);
+      vOuterSqCol = min(sq_col + 0.01, 1.0);
       vec4 world_pos = modelViewMatrix * vec4(position, 1.0);
       gl_Position = projectionMatrix * world_pos;
       gl_PointSize = (scale / -world_pos.z);
@@ -57,6 +64,8 @@ const PointCloudMaterial = /* @__PURE__ */ shaderMaterial(
    `,
   `varying vec3 vPosition;
   varying vec3 vColor;
+  varying vec3 vInnerSqCol;
+  varying vec3 vOuterSqCol;
   uniform float point_ball_norm;
   uniform float point_shading_enabled;
 
@@ -75,11 +84,8 @@ const PointCloudMaterial = /* @__PURE__ */ shaderMaterial(
           // Interpolation in approximate linear space (gamma 2.0) for
           // perceptually smoother gradients.
           // t: 0 at center, 1 at edge.
-          float t = min(length(gl_PointCoord - vec2(0.5)) / 1.414, 0.5) * 2.0;
-
-          // Shading curve: highlight center, darken edge.
-          float shade = 0.075 * (1.0 - 2.0 * t);
-          col = sqrt(clamp(col * col + shade, 0.0, 1.0));
+          float t = min(length(gl_PointCoord - vec2(0.5)), 0.5) * 2.0;
+          col = sqrt(t * vInnerSqCol + (1.0 - t) * vOuterSqCol);
       }
       gl_FragColor = vec4(col, 1.0);
       #include <fog_fragment>

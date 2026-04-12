@@ -33,6 +33,7 @@ from ._messages import (
     GuiButtonProps,
     GuiCheckboxProps,
     GuiCloseModalMessage,
+    GuiDividerProps,
     GuiDropdownProps,
     GuiFolderProps,
     GuiFormSubmitMessage,
@@ -1000,6 +1001,10 @@ class GuiMarkdownHandle(_GuiHandle[None], GuiMarkdownProps):
 
 class GuiHtmlHandle(_GuiHandle[None], GuiHtmlProps):
     """Handling for updating and removing HTML elements."""
+
+
+class GuiDividerHandle(_GuiHandle[None], GuiDividerProps):
+    """Handle for updating and removing dividers."""
 
 
 class GuiPlotlyHandle(_GuiHandle[None], GuiPlotlyProps):
