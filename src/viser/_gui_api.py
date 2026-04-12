@@ -8,6 +8,7 @@ import functools
 import threading
 import time
 from asyncio import AbstractEventLoop
+from collections.abc import Mapping
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import (
@@ -790,6 +791,7 @@ class GuiApi:
         self,
         figure: go.Figure,
         *,
+        config: Mapping[str, Any] | None = None,
         aspect: float = 1.0,
         order: float | None = None,
         visible: bool = True,
@@ -803,6 +805,10 @@ class GuiApi:
 
         Args:
             figure: Plotly figure to display.
+            config: Plotly config dict merged into the figure JSON. Controls
+                display options like ``{"displayModeBar": False}``. Values
+                must be JSON-serializable. See
+                https://plotly.com/javascript/configuration-options/
             aspect: Aspect ratio of the plot in the control panel (width/height).
             order: Optional ordering, smallest values will be displayed first.
             visible: Whether the component is visible.
@@ -862,6 +868,7 @@ class GuiApi:
                 parent_container_id=message.container_uuid,
             ),
             _figure=figure,
+            _config=config,
         )
 
         # Set the plotly handle properties.
