@@ -28,6 +28,7 @@ from typing_extensions import (
     LiteralString,
     TypeAlias,
     TypedDict,
+    assert_never,
     get_type_hints,
 )
 
@@ -36,6 +37,8 @@ from viser._backwards_compat_shims import deprecated_positional_shim
 
 from . import _messages, uplot
 from ._gui_handles import (
+    CommandEvent,
+    CommandHandle,
     GuiButtonGroupHandle,
     GuiButtonHandle,
     GuiCheckboxHandle,
@@ -64,6 +67,7 @@ from ._gui_handles import (
     GuiVector3Handle,
     SupportsRemoveProtocol,
     UploadedFile,
+    _CommandHandleState,
     _GuiButtonHandleState,
     _GuiHandleState,
     _GuiInputHandle,
@@ -215,6 +219,7 @@ class GuiApi:
             "root": _RootGuiContainer({})
         }
         self._modal_handle_from_uuid: dict[str, GuiModalHandle] = {}
+        self._command_handle_from_uuid: dict[str, CommandHandle] = {}
         self._current_file_upload_states: dict[str, _FileUploadState] = {}
 
         # Set to True when plotly.min.js has been sent to client.
@@ -239,13 +244,29 @@ class GuiApi:
             _messages.FileTransferPart,
             self._handle_file_transfer_part,
         )
+        self._websock_interface.register_handler(
+            _messages.CommandTriggerMessage, self._handle_command_trigger
+        )
+
+    def _resolve_client(self, client_id: ClientId) -> ClientHandle | None:
+        """Resolve the ClientHandle for a given client_id. Returns None when
+        the client has disconnected between queuing and dispatch -- callers
+        should early-return."""
+        # Runtime import to break the circular edge with `_viser`.
+        from ._viser import ClientHandle, ViserServer
+
+        if isinstance(self._owner, ClientHandle):
+            return self._owner
+        if isinstance(self._owner, ViserServer):
+            return self._owner._connected_clients.get(client_id, None)
+        assert_never(self._owner)
 
     async def _handle_gui_updates(
         self, client_id: ClientId, message: _messages.GuiUpdateMessage
     ) -> None:
         """Callback for handling GUI messages."""
         handle = self._gui_input_handle_from_uuid.get(message.uuid, None)
-        if handle is None:
+        if handle is None or handle._impl.removed:
             return
         handle_state = handle._impl
 
@@ -286,19 +307,10 @@ class GuiApi:
 
         # GUI element has been updated!
         handle_state.update_timestamp = time.time()
+        client = self._resolve_client(client_id)
+        if client is None:
+            return
         for cb in handle_state.update_cb:
-            from ._viser import ClientHandle, ViserServer
-
-            # Get the handle of the client that triggered this event.
-            if isinstance(self._owner, ClientHandle):
-                client = self._owner
-            elif isinstance(self._owner, ViserServer):
-                client = self._owner._connected_clients.get(client_id, None)
-                if client is None:
-                    return
-            else:
-                assert False
-
             if asyncio.iscoroutinefunction(cb):
                 await cb(GuiEvent(client, client_id, handle))
             else:
@@ -314,7 +326,7 @@ class GuiApi:
     ) -> None:
         """Callback for handling button hold messages."""
         handle = self._gui_input_handle_from_uuid.get(message.uuid, None)
-        if handle is None:
+        if handle is None or handle._impl.removed:
             return
 
         # Ensure this is a button handle with hold callbacks.
@@ -326,17 +338,9 @@ class GuiApi:
         if not callbacks:
             return
 
-        # Get the client handle.
-        from ._viser import ClientHandle, ViserServer
-
-        if isinstance(self._owner, ClientHandle):
-            client = self._owner
-        elif isinstance(self._owner, ViserServer):
-            client = self._owner._connected_clients.get(client_id, None)
-            if client is None:
-                return
-        else:
-            assert False
+        client = self._resolve_client(client_id)
+        if client is None:
+            return
 
         # Call all callbacks for this frequency.
         for cb in callbacks:
@@ -359,17 +363,9 @@ class GuiApi:
         if not isinstance(handle, GuiFormHandle):
             return
 
-        # Resolve the originating client.
-        from ._viser import ClientHandle, ViserServer
-
-        if isinstance(self._owner, ClientHandle):
-            client = self._owner
-        elif isinstance(self._owner, ViserServer):
-            client = self._owner._connected_clients.get(client_id, None)
-            if client is None:
-                return
-        else:
-            assert False
+        client = self._resolve_client(client_id)
+        if client is None:
+            return
 
         for cb in handle._submit_cb:
             if asyncio.iscoroutinefunction(cb):
@@ -440,7 +436,7 @@ class GuiApi:
         handle = self._gui_input_handle_from_uuid.get(
             message.source_component_uuid, None
         )
-        if handle is None:
+        if handle is None or handle._impl.removed:
             return
 
         handle_state = handle._impl
@@ -455,24 +451,38 @@ class GuiApi:
         handle_state.update_timestamp = time.time()
 
         # Trigger callbacks.
+        client = self._resolve_client(client_id)
+        if client is None:
+            return
         for cb in handle_state.update_cb:
-            from ._viser import ClientHandle, ViserServer
-
-            # Get the handle of the client that triggered this event.
-            if isinstance(self._owner, ClientHandle):
-                client = self._owner
-            elif isinstance(self._owner, ViserServer):
-                client = self._owner._connected_clients.get(client_id, None)
-                if client is None:
-                    return
-            else:
-                assert False
-
             if asyncio.iscoroutinefunction(cb):
                 self._event_loop.create_task(cb(GuiEvent(client, client_id, handle)))
             else:
                 self._thread_executor.submit(
                     cb, GuiEvent(client, client_id, handle)
+                ).add_done_callback(print_threadpool_errors)
+
+    async def _handle_command_trigger(
+        self, client_id: ClientId, message: _messages.CommandTriggerMessage
+    ) -> None:
+        """Callback for handling command trigger messages from the command palette."""
+        handle = self._command_handle_from_uuid.get(message.uuid, None)
+        if handle is None or handle._impl.removed:
+            return
+        handle_state = handle._impl
+        if handle_state.props.disabled:
+            return
+
+        client = self._resolve_client(client_id)
+        if client is None:
+            return
+
+        for cb in handle_state.trigger_cb:
+            if asyncio.iscoroutinefunction(cb):
+                await cb(CommandEvent(client, client_id, handle))
+            else:
+                self._thread_executor.submit(
+                    cb, CommandEvent(client, client_id, handle)
                 ).add_done_callback(print_threadpool_errors)
 
     def _get_container_uuid(self) -> str:
@@ -486,10 +496,12 @@ class GuiApi:
     def reset(self) -> None:
         """Reset the GUI."""
         root_container = self._container_handle_from_uuid["root"]
-        while len(root_container._children) > 0:
+        while root_container._children:
             next(iter(root_container._children.values())).remove()
-        while len(self._modal_handle_from_uuid) > 0:
+        while self._modal_handle_from_uuid:
             next(iter(self._modal_handle_from_uuid.values())).close()
+        while self._command_handle_from_uuid:
+            next(iter(self._command_handle_from_uuid.values())).remove()
 
     def set_panel_label(self, label: str | None) -> None:
         """Set the main label that appears in the GUI panel.
@@ -573,6 +585,57 @@ class GuiApi:
                 colors=colors_cast,
             ),
         )
+
+    def add_command(
+        self,
+        label: str,
+        *,
+        description: str | None = None,
+        hotkey: _messages.Hotkey | None = None,
+        icon: IconName | None = None,
+        disabled: bool = False,
+    ) -> CommandHandle:
+        """Register a command that can be triggered from the client's command palette.
+
+        Args:
+            label: Label displayed in the command palette.
+            description: Optional description displayed below the label.
+            hotkey: Optional hotkey binding. Can be a single key like ``"K"``
+                or a tuple with modifiers like ``("mod", "shift", "R")``.
+                ``mod`` maps to Cmd on macOS and Ctrl on other platforms.
+            icon: Optional icon to display next to the command label.
+            disabled: If True, the command is visible but not triggerable.
+
+        Returns:
+            A handle that can be used to attach callbacks via
+            :meth:`CommandHandle.on_trigger`, update properties, or remove the
+            command.
+        """
+        command_uuid = _make_uuid()
+        props = _messages.CommandProps(
+            label=label,
+            description=description,
+            hotkey=hotkey,
+            disabled=disabled,
+            _icon_html=None if icon is None else svg_from_icon(icon),
+        )
+        # Register in the local map before publishing, so an immediate
+        # trigger from the client can be resolved here.
+        handle_state = _CommandHandleState(
+            uuid=command_uuid,
+            gui_api=self,
+            props=props,
+            icon=icon,
+        )
+        handle = CommandHandle(handle_state)
+        self._command_handle_from_uuid[command_uuid] = handle
+        self._websock_interface.queue_message(
+            _messages.RegisterCommandMessage(
+                uuid=command_uuid,
+                props=props,
+            )
+        )
+        return handle
 
     @deprecated_positional_shim
     def add_folder(
