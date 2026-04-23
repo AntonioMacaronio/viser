@@ -18,6 +18,7 @@
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=5976cbfc" />
     <link rel="stylesheet" type="text/css" href="../../../_static/ansi.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo-extensions.css?v=302659d7" />
@@ -229,7 +230,7 @@
 
     async function getViserVersionList() {
       // This index.txt file is written by the docs.yml GitHub action.
-      // https://github.com/nerfstudio-project/viser/blob/main/.github/workflows/docs.yml
+      // https://github.com/viser-project/viser/blob/main/.github/workflows/docs.yml
       const response = await fetch("https://viser.studio/versions/index.txt", {
         cache: "no-cache",
       });
@@ -279,7 +280,7 @@
   <script async defer src="https://buttons.github.io/buttons.js"></script>
   <a
     class="github-button"
-    href="https://github.com/nerfstudio-project/viser"
+    href="https://github.com/viser-project/viser"
     data-color-scheme="no-preference: light; light: light; dark: light;"
     data-size="large"
     data-show-count="true"
@@ -311,6 +312,8 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../examples/scene/background_composite/">Depth compositing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../examples/scene/set_up_direction/">Set up direction</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../examples/scene/gaussian_splats/">Gaussian splats</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../examples/scene/fog/">Distance fog</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../examples/scene/arrows/">Arrow visualization</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../../examples/gui/">GUI Controls</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of GUI Controls</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -377,10 +380,11 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Notes</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../interactive_notebooks/">Interactive Notebooks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../conventions/">Frame Conventions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../performance_tips/">Performance Tips</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../development/">Development</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../embedded_visualizations/">Embedding Visualizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../embedded_visualizations/">Embedded Visualizations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../citation/">Citation</a></li>
 </ul>
 
@@ -432,7 +436,6 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">ContextManager</span><span class="p">,</span> <span class="n">TypeVar</span><span class="p">,</span> <span class="n">cast</span><span class="p">,</span> <span class="n">overload</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">imageio.v3</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">iio</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy.typing</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">npt</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">deprecated</span>
@@ -446,6 +449,119 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">._threadpool_exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">print_threadpool_errors</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">._tunnel</span><span class="w"> </span><span class="kn">import</span> <span class="n">ViserTunnel</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.infra._infra</span><span class="w"> </span><span class="kn">import</span> <span class="n">StateSerializer</span>
+
+
+<div class="viewcode-block" id="InitialCameraConfig">
+<a class="viewcode-back" href="../../../api/handles/camera_handles/#viser.InitialCameraConfig">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">InitialCameraConfig</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Configuration for the initial camera pose.</span>
+
+<span class="sd">    Accessed via :attr:`ViserServer.initial_camera`. Values set here determine:</span>
+
+<span class="sd">    1. The starting camera pose for new client connections</span>
+<span class="sd">    2. The pose that &quot;Reset View&quot; returns to in the client</span>
+
+<span class="sd">    Default behavior (when properties are not explicitly set):</span>
+<span class="sd">        The client uses a built-in default camera position that provides a</span>
+<span class="sd">        reasonable view regardless of the scene&#39;s up direction. This default</span>
+<span class="sd">        is specified in three.js coordinates and does not require world</span>
+<span class="sd">        coordinate transformation.</span>
+
+<span class="sd">    When properties are explicitly set, they are interpreted as viser world</span>
+<span class="sd">    coordinates and transformed appropriately based on the scene&#39;s up direction.</span>
+
+<span class="sd">    When properties are changed after clients are connected, only the &quot;Reset</span>
+<span class="sd">    View&quot; target is updated. Clients&#39; current camera positions are not moved,</span>
+<span class="sd">    allowing users to continue working undisturbed.</span>
+
+<span class="sd">    Note that URL parameters (e.g., ``?initialCameraPosition=1,2,3``) take</span>
+<span class="sd">    priority over server-set values.</span>
+
+<span class="sd">    The API is designed to match :class:`CameraHandle`, which is used for</span>
+<span class="sd">    per-client camera control.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">broadcast</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">_messages</span><span class="o">.</span><span class="n">Message</span><span class="p">],</span> <span class="kc">None</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_broadcast</span> <span class="o">=</span> <span class="n">broadcast</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_position</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">3.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_look_at</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">])</span>
+        <span class="c1"># None means &quot;same as the scene up direction&quot;.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_up</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="c1"># 75 degrees in radians; matches three.js PerspectiveCamera default.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fov</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">75.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mf">180.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_near</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.01</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_far</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1000.0</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">position</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Camera position in world coordinates.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_position</span>
+
+    <span class="nd">@position</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">position</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_position</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_broadcast</span><span class="p">(</span>
+            <span class="n">_messages</span><span class="o">.</span><span class="n">SetCameraPositionMessage</span><span class="p">(</span><span class="n">cast_vector</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">initial</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">look_at</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Point the camera looks at in world coordinates.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_look_at</span>
+
+    <span class="nd">@look_at</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">look_at</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_look_at</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_broadcast</span><span class="p">(</span>
+            <span class="n">_messages</span><span class="o">.</span><span class="n">SetCameraLookAtMessage</span><span class="p">(</span><span class="n">cast_vector</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">initial</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">up</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Camera up direction, or None for scene up direction.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_up</span>
+
+    <span class="nd">@up</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">up</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_up</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_broadcast</span><span class="p">(</span>
+            <span class="n">_messages</span><span class="o">.</span><span class="n">SetCameraUpDirectionMessage</span><span class="p">(</span><span class="n">cast_vector</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">initial</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fov</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Vertical field of view in radians.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fov</span>
+
+    <span class="nd">@fov</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fov</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fov</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_broadcast</span><span class="p">(</span><span class="n">_messages</span><span class="o">.</span><span class="n">SetCameraFovMessage</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_fov</span><span class="p">,</span> <span class="n">initial</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">near</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Near clipping plane distance.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_near</span>
+
+    <span class="nd">@near</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">near</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_near</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_broadcast</span><span class="p">(</span><span class="n">_messages</span><span class="o">.</span><span class="n">SetCameraNearMessage</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_near</span><span class="p">,</span> <span class="n">initial</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">far</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Far clipping plane distance.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_far</span>
+
+    <span class="nd">@far</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">far</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_far</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_broadcast</span><span class="p">(</span><span class="n">_messages</span><span class="o">.</span><span class="n">SetCameraFarMessage</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_far</span><span class="p">,</span> <span class="n">initial</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span></div>
+
 
 
 <span class="nd">@dataclasses</span><span class="o">.</span><span class="n">dataclass</span>
@@ -930,7 +1046,7 @@
                 <span class="p">),</span>
             <span class="p">)</span>
         <span class="p">)</span>
-        <span class="n">handle</span><span class="o">.</span><span class="n">_sync_with_client</span><span class="p">(</span><span class="s2">&quot;show&quot;</span><span class="p">)</span>
+        <span class="n">handle</span><span class="o">.</span><span class="n">_show</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">handle</span></div>
 
 
@@ -1000,6 +1116,8 @@
                 <span class="n">_messages</span><span class="o">.</span><span class="n">GetRenderResponseMessage</span><span class="p">,</span> <span class="n">got_render_cb</span>
             <span class="p">)</span>
             <span class="k">nonlocal</span> <span class="n">out</span>
+            <span class="kn">import</span><span class="w"> </span><span class="nn">imageio.v3</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">iio</span>
+
             <span class="n">out</span> <span class="o">=</span> <span class="n">iio</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span>
                 <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">message</span><span class="o">.</span><span class="n">payload</span><span class="p">),</span>
                 <span class="n">extension</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;.</span><span class="si">{</span><span class="n">transport_format</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
@@ -1079,14 +1197,14 @@
             <span class="n">host</span><span class="o">=</span><span class="n">host</span><span class="p">,</span>
             <span class="n">port</span><span class="o">=</span><span class="n">port</span><span class="p">,</span>
             <span class="n">message_class</span><span class="o">=</span><span class="n">_messages</span><span class="o">.</span><span class="n">Message</span><span class="p">,</span>
-            <span class="n">http_server_root</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="s2">&quot;client&quot;</span> <span class="o">/</span> <span class="s2">&quot;build&quot;</span><span class="p">,</span>
+            <span class="n">http_server_root</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="s2">&quot;client&quot;</span> <span class="o">/</span> <span class="s2">&quot;build&quot;</span><span class="p">,</span>
             <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
-            <span class="n">client_api_version</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_websock_server</span> <span class="o">=</span> <span class="n">server</span>
 
         <span class="n">_client_autobuild</span><span class="o">.</span><span class="n">ensure_client_is_built</span><span class="p">()</span>
 
+        <span class="bp">self</span><span class="o">.</span><span class="n">_initial_camera</span> <span class="o">=</span> <span class="n">InitialCameraConfig</span><span class="p">(</span><span class="n">broadcast</span><span class="o">=</span><span class="n">server</span><span class="o">.</span><span class="n">queue_message</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_connection</span> <span class="o">=</span> <span class="n">server</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_connected_clients</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">ClientHandle</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_client_lock</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Lock</span><span class="p">()</span>
@@ -1245,66 +1363,92 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">set_panel_label</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
 
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">initial_camera</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">InitialCameraConfig</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Configuration for initial camera pose.</span>
+
+<span class="sd">        Set these values to control the initial camera position for new</span>
+<span class="sd">        clients and serialized/embedded scenes. The API is designed to match</span>
+<span class="sd">        :class:`viser.CameraHandle`, which is used for per-client camera control.</span>
+
+<span class="sd">        Example usage::</span>
+
+<span class="sd">            server.initial_camera.position = (5.0, 5.0, 3.0)</span>
+<span class="sd">            server.initial_camera.look_at = (0.0, 0.0, 0.0)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_initial_camera</span>
+
     <span class="k">def</span><span class="w"> </span><span class="nf">_run_garbage_collector</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">force</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Clean up old messages. This is not elegant; a refactor of our</span>
-<span class="sd">        message persistence logic will significantly reduce complexity.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Purge from the persistent broadcast buffer:</span>
+
+<span class="sd">        - Every tombstone message (``lifecycle_phase == &quot;remove&quot;``) for an</span>
+<span class="sd">          entity -- new clients shouldn&#39;t replay removals of entities that</span>
+<span class="sd">          never existed to them.</span>
+<span class="sd">        - Every update message (``lifecycle_phase == &quot;update&quot;``) targeting an</span>
+<span class="sd">          entity that was already removed.</span>
+<span class="sd">        - Scene-node-adjacent ``Set*Message`` variants (SetPosition,</span>
+<span class="sd">          SetOrientation, SetBonePosition, SetBoneOrientation,</span>
+<span class="sd">          SetSceneNodeClickable, SetSceneNodeVisibility) that target a removed</span>
+<span class="sd">          scene node. These aren&#39;t entity-declared because they target the</span>
+<span class="sd">          node-by-name but don&#39;t fit the &quot;updates: dict&quot; shape; a `name`-match</span>
+<span class="sd">          against the tombstone set catches them generically.</span>
+
+<span class="sd">        Two passes so purging is order-independent under concurrent writers:</span>
+<span class="sd">        the first pass collects all tombstone entity ids, the second sweeps</span>
+<span class="sd">        updates (and scene-adjacent Set* messages) targeting them.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">buffer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_websock_server</span><span class="o">.</span><span class="n">_broadcast_buffer</span>
         <span class="k">with</span> <span class="n">buffer</span><span class="o">.</span><span class="n">buffer_lock</span><span class="p">:</span>
-            <span class="c1"># Skip garbage collection if we have messages that are queeud but</span>
-            <span class="c1"># not yet processed by the window generators.</span>
-            <span class="c1">#</span>
-            <span class="c1"># This makes sure that we don&#39;t accidentally cull messages before</span>
-            <span class="c1"># they&#39;re sent to existing clients. RemoveSceneNodeMessage, for example,</span>
-            <span class="c1"># needs to be sent to old clients but not new ones.</span>
+            <span class="c1"># Skip GC while there are messages queued but not yet processed by</span>
+            <span class="c1"># the window generators. Without this, we could cull messages</span>
+            <span class="c1"># before they reach existing clients.</span>
             <span class="k">if</span> <span class="p">(</span>
                 <span class="ow">not</span> <span class="n">force</span>
                 <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_websock_server</span><span class="o">.</span><span class="n">_broadcast_buffer</span><span class="o">.</span><span class="n">message_event</span><span class="o">.</span><span class="n">is_set</span><span class="p">()</span>
             <span class="p">):</span>
                 <span class="k">return</span>
 
+            <span class="c1"># First pass: collect every tombstone&#39;s entity id.</span>
             <span class="n">remove_message_ids</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-
-            <span class="n">remove_scene_names</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
-            <span class="n">remove_gui_uuids</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
-
-            <span class="k">for</span> <span class="nb">id</span><span class="p">,</span> <span class="n">message</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="n">buffer</span><span class="o">.</span><span class="n">message_from_id</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
-                <span class="c1"># Find scene nodes or GUI elements that were removed.</span>
-                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">_messages</span><span class="o">.</span><span class="n">RemoveSceneNodeMessage</span><span class="p">):</span>
-                    <span class="n">remove_message_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
-                    <span class="n">remove_scene_names</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">message</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">_messages</span><span class="o">.</span><span class="n">GuiRemoveMessage</span><span class="p">):</span>
-                    <span class="n">remove_message_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
-                    <span class="n">remove_gui_uuids</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">message</span><span class="o">.</span><span class="n">uuid</span><span class="p">)</span>
-                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">_messages</span><span class="o">.</span><span class="n">GuiCloseModalMessage</span><span class="p">):</span>
-                    <span class="n">remove_message_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
-
-                <span class="c1"># For removed elements, no need to send any update messages.</span>
-                <span class="k">if</span> <span class="p">(</span>
-                    <span class="nb">isinstance</span><span class="p">(</span>
-                        <span class="n">message</span><span class="p">,</span>
-                        <span class="p">(</span>
-                            <span class="n">_messages</span><span class="o">.</span><span class="n">SetPositionMessage</span><span class="p">,</span>
-                            <span class="n">_messages</span><span class="o">.</span><span class="n">SetOrientationMessage</span><span class="p">,</span>
-                            <span class="n">_messages</span><span class="o">.</span><span class="n">SetBonePositionMessage</span><span class="p">,</span>
-                            <span class="n">_messages</span><span class="o">.</span><span class="n">SetBoneOrientationMessage</span><span class="p">,</span>
-                            <span class="n">_messages</span><span class="o">.</span><span class="n">SetSceneNodeClickableMessage</span><span class="p">,</span>
-                            <span class="n">_messages</span><span class="o">.</span><span class="n">SetSceneNodeVisibilityMessage</span><span class="p">,</span>
-                        <span class="p">),</span>
+            <span class="n">removed_ids_by_type</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">msg_id</span><span class="p">,</span> <span class="n">message</span> <span class="ow">in</span> <span class="n">buffer</span><span class="o">.</span><span class="n">message_from_id</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">message</span><span class="o">.</span><span class="n">lifecycle_phase</span> <span class="o">==</span> <span class="s2">&quot;remove&quot;</span><span class="p">:</span>
+                    <span class="k">assert</span> <span class="p">(</span>
+                        <span class="n">message</span><span class="o">.</span><span class="n">entity_type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                        <span class="ow">and</span> <span class="n">message</span><span class="o">.</span><span class="n">entity_id_field</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
                     <span class="p">)</span>
-                    <span class="ow">and</span> <span class="n">message</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">remove_scene_names</span>
-                <span class="p">):</span>
-                    <span class="n">remove_message_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
+                    <span class="n">remove_message_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">msg_id</span><span class="p">)</span>
+                    <span class="n">removed_ids_by_type</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">message</span><span class="o">.</span><span class="n">entity_type</span><span class="p">,</span> <span class="nb">set</span><span class="p">())</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+                        <span class="nb">getattr</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">message</span><span class="o">.</span><span class="n">entity_id_field</span><span class="p">)</span>
+                    <span class="p">)</span>
 
-                <span class="k">if</span> <span class="p">(</span>
-                    <span class="nb">isinstance</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">_messages</span><span class="o">.</span><span class="n">GuiUpdateMessage</span><span class="p">)</span>
-                    <span class="ow">and</span> <span class="n">message</span><span class="o">.</span><span class="n">uuid</span> <span class="ow">in</span> <span class="n">remove_gui_uuids</span>
-                <span class="p">):</span>
-                    <span class="n">remove_message_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
+            <span class="c1"># Second pass: purge updates whose target entity has a tombstone,</span>
+            <span class="c1"># including scene-adjacent Set*Message variants that target a</span>
+            <span class="c1"># removed scene node by `name` but aren&#39;t entity-declared. Skip</span>
+            <span class="c1"># the walk entirely when nothing was tombstoned this round.</span>
+            <span class="k">if</span> <span class="n">removed_ids_by_type</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">msg_id</span><span class="p">,</span> <span class="n">message</span> <span class="ow">in</span> <span class="n">buffer</span><span class="o">.</span><span class="n">message_from_id</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="n">phase</span> <span class="o">=</span> <span class="n">message</span><span class="o">.</span><span class="n">lifecycle_phase</span>
+                    <span class="k">if</span> <span class="n">phase</span> <span class="o">==</span> <span class="s2">&quot;update&quot;</span><span class="p">:</span>
+                        <span class="k">assert</span> <span class="p">(</span>
+                            <span class="n">message</span><span class="o">.</span><span class="n">entity_type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                            <span class="ow">and</span> <span class="n">message</span><span class="o">.</span><span class="n">entity_id_field</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                        <span class="p">)</span>
+                        <span class="n">entity_id</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">message</span><span class="o">.</span><span class="n">entity_id_field</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">entity_id</span> <span class="ow">in</span> <span class="n">removed_ids_by_type</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                            <span class="n">message</span><span class="o">.</span><span class="n">entity_type</span><span class="p">,</span> <span class="p">()</span>
+                        <span class="p">):</span>
+                            <span class="n">remove_message_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">msg_id</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="n">phase</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">name</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">removed_ids_by_type</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                            <span class="s2">&quot;scene&quot;</span><span class="p">,</span> <span class="p">()</span>
+                        <span class="p">):</span>
+                            <span class="n">remove_message_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">msg_id</span><span class="p">)</span>
 
-            <span class="c1"># Remove old messages.</span>
-            <span class="k">for</span> <span class="nb">id</span> <span class="ow">in</span> <span class="n">remove_message_ids</span><span class="p">:</span>
-                <span class="n">message</span> <span class="o">=</span> <span class="n">buffer</span><span class="o">.</span><span class="n">message_from_id</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
-                <span class="n">buffer</span><span class="o">.</span><span class="n">id_from_redundancy_key</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">message</span><span class="o">.</span><span class="n">redundancy_key</span><span class="p">())</span>
+            <span class="k">for</span> <span class="n">msg_id</span> <span class="ow">in</span> <span class="n">remove_message_ids</span><span class="p">:</span>
+                <span class="n">message</span> <span class="o">=</span> <span class="n">buffer</span><span class="o">.</span><span class="n">message_from_id</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">msg_id</span><span class="p">)</span>
+                <span class="n">buffer</span><span class="o">.</span><span class="n">id_from_redundancy_key</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">message</span><span class="o">.</span><span class="n">redundancy_key</span><span class="p">(),</span> <span class="kc">None</span><span class="p">)</span>
 
 <div class="viewcode-block" id="ViserServer.get_host">
 <a class="viewcode-back" href="../../../api/core/server/#viser.ViserServer.get_host">[docs]</a>
@@ -1338,6 +1482,9 @@
 
 <span class="sd">        This is an experimental feature that relies on an external server; it shouldn&#39;t</span>
 <span class="sd">        be relied on for critical applications.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            verbose: Whether to print status messages.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            Share URL as string, or None if connection fails or is closed.</span>
@@ -1549,7 +1696,7 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">_start_scene_recording</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;**Old API.**&quot;&quot;&quot;</span>
         <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-            <span class="s2">&quot;_start_scene_recording() has been renamed. See notes in https://github.com/nerfstudio-project/viser/pull/357 for the new API.&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;_start_scene_recording() has been renamed. See notes in https://github.com/viser-project/viser/pull/357 for the new API.&quot;</span><span class="p">,</span>
             <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
         <span class="p">)</span>
 
@@ -1559,20 +1706,20 @@
         <span class="k">class</span><span class="w"> </span><span class="nc">_SceneRecordCompatibilityShim</span><span class="p">:</span>
             <span class="k">def</span><span class="w"> </span><span class="nf">set_loop_start</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
                 <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-                    <span class="s2">&quot;_start_scene_recording() has been renamed. See notes in https://github.com/nerfstudio-project/viser/pull/357 for the new API.&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;_start_scene_recording() has been renamed. See notes in https://github.com/viser-project/viser/pull/357 for the new API.&quot;</span><span class="p">,</span>
                     <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
                 <span class="p">)</span>
 
             <span class="k">def</span><span class="w"> </span><span class="nf">insert_sleep</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">duration</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
                 <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-                    <span class="s2">&quot;_start_scene_recording() has been renamed. See notes in https://github.com/nerfstudio-project/viser/pull/357 for the new API.&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;_start_scene_recording() has been renamed. See notes in https://github.com/viser-project/viser/pull/357 for the new API.&quot;</span><span class="p">,</span>
                     <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
                 <span class="p">)</span>
                 <span class="n">serializer</span><span class="o">.</span><span class="n">insert_sleep</span><span class="p">(</span><span class="n">duration</span><span class="p">)</span>
 
             <span class="k">def</span><span class="w"> </span><span class="nf">end_and_serialize</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
                 <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-                    <span class="s2">&quot;_start_scene_recording() has been renamed. See notes in https://github.com/nerfstudio-project/viser/pull/357 for the new API.&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;_start_scene_recording() has been renamed. See notes in https://github.com/viser-project/viser/pull/357 for the new API.&quot;</span><span class="p">,</span>
                     <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
                 <span class="p">)</span>
                 <span class="k">return</span> <span class="n">serializer</span><span class="o">.</span><span class="n">serialize</span><span class="p">()</span>
@@ -1588,11 +1735,13 @@
 <span class="sd">        visualization.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">serializer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_websock_server</span><span class="o">.</span><span class="n">get_message_serializer</span><span class="p">(</span>
-            <span class="c1"># Don&#39;t record GUI messages. This feels brittle.</span>
-            <span class="nb">filter</span><span class="o">=</span><span class="k">lambda</span> <span class="n">message</span><span class="p">:</span> <span class="s2">&quot;Gui&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">type</span><span class="p">(</span><span class="n">message</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span>
+            <span class="nb">filter</span><span class="o">=</span><span class="k">lambda</span> <span class="n">message</span><span class="p">:</span> <span class="n">message</span><span class="o">.</span><span class="n">include_in_scene_serialization</span>
         <span class="p">)</span>
         <span class="c1"># Insert current scene state.</span>
-        <span class="k">for</span> <span class="n">message</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_websock_server</span><span class="o">.</span><span class="n">_broadcast_buffer</span><span class="o">.</span><span class="n">message_from_id</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="n">buffer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_websock_server</span><span class="o">.</span><span class="n">_broadcast_buffer</span>
+        <span class="k">with</span> <span class="n">buffer</span><span class="o">.</span><span class="n">buffer_lock</span><span class="p">:</span>
+            <span class="n">messages</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">buffer</span><span class="o">.</span><span class="n">message_from_id</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+        <span class="k">for</span> <span class="n">message</span> <span class="ow">in</span> <span class="n">messages</span><span class="p">:</span>
             <span class="n">serializer</span><span class="o">.</span><span class="n">_insert_message</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">serializer</span></div>
 </div>
@@ -1618,7 +1767,7 @@
           </div>
           <div class="right-details">
             <div class="icons">
-              <a class="muted-link " href="https://github.com/nerfstudio-project/viser" aria-label="GitHub">
+              <a class="muted-link " href="https://github.com/viser-project/viser" aria-label="GitHub">
             <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 16 16">
                 <path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path>
             </svg>

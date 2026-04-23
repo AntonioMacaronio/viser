@@ -18,6 +18,7 @@
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/css/custom.css?v=5976cbfc" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/ansi.css" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo-extensions.css?v=302659d7" />
@@ -229,7 +230,7 @@
 
     async function getViserVersionList() {
       // This index.txt file is written by the docs.yml GitHub action.
-      // https://github.com/nerfstudio-project/viser/blob/main/.github/workflows/docs.yml
+      // https://github.com/viser-project/viser/blob/main/.github/workflows/docs.yml
       const response = await fetch("https://viser.studio/versions/index.txt", {
         cache: "no-cache",
       });
@@ -279,7 +280,7 @@
   <script async defer src="https://buttons.github.io/buttons.js"></script>
   <a
     class="github-button"
-    href="https://github.com/nerfstudio-project/viser"
+    href="https://github.com/viser-project/viser"
     data-color-scheme="no-preference: light; light: light; dark: light;"
     data-size="large"
     data-show-count="true"
@@ -311,6 +312,8 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../../examples/scene/background_composite/">Depth compositing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../examples/scene/set_up_direction/">Set up direction</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../examples/scene/gaussian_splats/">Gaussian splats</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../examples/scene/fog/">Distance fog</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../examples/scene/arrows/">Arrow visualization</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../../../examples/gui/">GUI Controls</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of GUI Controls</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -377,10 +380,11 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Notes</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../interactive_notebooks/">Interactive Notebooks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../conventions/">Frame Conventions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../performance_tips/">Performance Tips</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../development/">Development</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../embedded_visualizations/">Embedding Visualizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../embedded_visualizations/">Embedded Visualizations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../citation/">Citation</a></li>
 </ul>
 
@@ -426,9 +430,20 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">dataclasses</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">functools</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">TypeVar</span><span class="p">,</span> <span class="n">cast</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">TYPE_CHECKING</span><span class="p">,</span>
+    <span class="n">Any</span><span class="p">,</span>
+    <span class="n">ClassVar</span><span class="p">,</span>
+    <span class="n">Dict</span><span class="p">,</span>
+    <span class="n">List</span><span class="p">,</span>
+    <span class="n">Optional</span><span class="p">,</span>
+    <span class="n">Type</span><span class="p">,</span>
+    <span class="n">TypeVar</span><span class="p">,</span>
+    <span class="n">Union</span><span class="p">,</span>
+    <span class="n">cast</span><span class="p">,</span>
+<span class="p">)</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">msgspec</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">msgspec.msgpack</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_args</span><span class="p">,</span> <span class="n">get_origin</span><span class="p">,</span> <span class="n">get_type_hints</span>
 
@@ -445,6 +460,23 @@
         <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">annotation</span> <span class="ow">is</span> <span class="nb">int</span><span class="p">:</span>
         <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">get_origin</span><span class="p">(</span><span class="n">annotation</span><span class="p">)</span> <span class="ow">is</span> <span class="n">Union</span><span class="p">:</span>
+        <span class="c1"># Handle Optional[T] and Union[T1, T2, ...] by finding the best</span>
+        <span class="c1"># matching inner type. This avoids needing a blanket lists_to_tuple()</span>
+        <span class="c1"># pass over the entire deserialized message.</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="n">get_args</span><span class="p">(</span><span class="n">annotation</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">args</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">arg</span> <span class="ow">is</span> <span class="nb">type</span><span class="p">(</span><span class="kc">None</span><span class="p">):</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="n">get_origin</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">tuple</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+                <span class="k">return</span> <span class="n">_prepare_for_deserialization</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">arg</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">arg</span> <span class="ow">is</span> <span class="nb">float</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">)):</span>
+                <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">arg</span> <span class="ow">is</span> <span class="nb">int</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+                <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">value</span>
     <span class="k">elif</span> <span class="n">get_origin</span><span class="p">(</span><span class="n">annotation</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">tuple</span><span class="p">:</span>
         <span class="n">out</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">args</span> <span class="o">=</span> <span class="n">get_args</span><span class="p">(</span><span class="n">annotation</span><span class="p">)</span>
@@ -464,8 +496,20 @@
     <span class="k">return</span> <span class="n">value</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_prepare_for_serialization</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">annotation</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Prepare any special types for serialization.&quot;&quot;&quot;</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_prepare_for_serialization</span><span class="p">(</span>
+    <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="n">annotation</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span>
+    <span class="n">binary_buffers</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">memoryview</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Prepare any special types for serialization.</span>
+
+<span class="sd">    If ``binary_buffers`` is provided, numpy arrays are extracted into it and</span>
+<span class="sd">    replaced with tagged placeholder dicts (``{&quot;__binary_index&quot;: i, &quot;dtype&quot;: &quot;&lt;f4&quot;}``).</span>
+<span class="sd">    This pairs with the hybrid wire format where binary data is appended raw</span>
+<span class="sd">    after the msgpack payload, enabling zero-copy typed array views on the client.</span>
+
+<span class="sd">    If ``binary_buffers`` is None, numpy arrays are inlined as memoryviews</span>
+<span class="sd">    in the serialized dict itself.&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">annotation</span> <span class="ow">is</span> <span class="n">Any</span><span class="p">:</span>
         <span class="n">annotation</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
@@ -477,7 +521,7 @@
         <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">is_dataclass</span><span class="p">(</span><span class="n">annotation</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">_prepare_for_serialization</span><span class="p">(</span><span class="nb">vars</span><span class="p">(</span><span class="n">value</span><span class="p">),</span> <span class="nb">dict</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">_prepare_for_serialization</span><span class="p">(</span><span class="nb">vars</span><span class="p">(</span><span class="n">value</span><span class="p">),</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">binary_buffers</span><span class="p">)</span>
 
     <span class="c1"># Recursively handle tuples.</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
@@ -496,17 +540,32 @@
             <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                 <span class="c1"># Hack to be OK with wrong type annotations.</span>
                 <span class="c1"># https://github.com/nerfstudio-project/nerfstudio/pull/1805</span>
-                <span class="n">_prepare_for_serialization</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">args</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="k">else</span> <span class="n">v</span>
+                <span class="n">_prepare_for_serialization</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">args</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">binary_buffers</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+                <span class="k">else</span> <span class="n">v</span>
             <span class="p">)</span>
         <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
 
-    <span class="c1"># For arrays, we serialize underlying data directly. The client is responsible for</span>
-    <span class="c1"># reading using the correct dtype.</span>
+    <span class="c1"># Handle numpy arrays: extract or inline depending on mode.</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">value</span><span class="o">.</span><span class="n">data</span> <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">c_contiguous</span> <span class="k">else</span> <span class="n">value</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span><span class="o">.</span><span class="n">data</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">data</span> <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">c_contiguous</span> <span class="k">else</span> <span class="n">value</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span><span class="o">.</span><span class="n">data</span>
+        <span class="k">if</span> <span class="n">binary_buffers</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># Extract into separate buffer with tagged placeholder.</span>
+            <span class="n">idx</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">binary_buffers</span><span class="p">)</span>
+            <span class="n">binary_buffers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;__binary_index&quot;</span><span class="p">:</span> <span class="n">idx</span><span class="p">,</span> <span class="s2">&quot;dtype&quot;</span><span class="p">:</span> <span class="n">value</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">str</span><span class="p">}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Inline as memoryview in the serialized dict.</span>
+            <span class="k">return</span> <span class="n">data</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">_prepare_for_serialization</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">binary_buffers</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">value</span><span class="p">]</span>
 
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">_prepare_for_serialization</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">Any</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">value</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>  <span class="c1"># type: ignore</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="n">k</span><span class="p">:</span> <span class="n">_prepare_for_serialization</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">binary_buffers</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">value</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="p">}</span>  <span class="c1"># type: ignore</span>
 
     <span class="k">return</span> <span class="n">value</span>
 
@@ -528,14 +587,39 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Don&#39;t send this message to a particular client. Useful when a client wants to</span>
 <span class="sd">    send synchronization information to other clients.&quot;&quot;&quot;</span>
 
+    <span class="c1"># Entity lifecycle markers. Generic at this layer; application-specific</span>
+    <span class="c1"># literals (e.g. EntityType in viser._messages) narrow these in subclasses</span>
+    <span class="c1"># via the __init_subclass__ kwargs pattern. The buffer and GC read these</span>
+    <span class="c1"># via the Message base to coalesce create/remove and purge stale updates</span>
+    <span class="c1"># uniformly across entity types.</span>
+    <span class="n">entity_type</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">lifecycle_phase</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">entity_id_field</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="c1"># Required on every viser Message subclass (enforced in</span>
+    <span class="c1"># viser._messages.Message.__init_subclass__). Type-only declaration here</span>
+    <span class="c1"># so infra-level readers (e.g. the state-serializer filter) can access</span>
+    <span class="c1"># the attribute without static errors.</span>
+    <span class="n">include_in_scene_serialization</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span>
+
 <div class="viewcode-block" id="Message.as_serializable_dict">
 <a class="viewcode-back" href="../../../../api/auxiliary/infrastructure/#viser.infra.Message.as_serializable_dict">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">as_serializable_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert a Python Message object into bytes.&quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">as_serializable_dict</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">binary_buffers</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">memoryview</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert a Python Message object into a serializable dict.</span>
+
+<span class="sd">        If ``binary_buffers`` is provided, numpy arrays are extracted into it</span>
+<span class="sd">        and replaced with tagged placeholder dicts for the hybrid wire format.</span>
+<span class="sd">        Otherwise, arrays are inlined as memoryviews in the returned dict.&quot;&quot;&quot;</span>
         <span class="n">message_type</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="n">hints</span> <span class="o">=</span> <span class="n">get_type_hints_cached</span><span class="p">(</span><span class="n">message_type</span><span class="p">)</span>
+        <span class="c1"># Filter to type-hinted fields only — excludes dynamic attributes</span>
+        <span class="c1"># like cached values that shouldn&#39;t be serialized.</span>
         <span class="n">out</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="n">k</span><span class="p">:</span> <span class="n">_prepare_for_serialization</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">hints</span><span class="p">[</span><span class="n">k</span><span class="p">])</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">vars</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="n">k</span><span class="p">:</span> <span class="n">_prepare_for_serialization</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">hints</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="n">binary_buffers</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">vars</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">hints</span>
         <span class="p">}</span>
         <span class="n">out</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">message_type</span><span class="o">.</span><span class="vm">__name__</span>
         <span class="k">return</span> <span class="n">out</span></div>
@@ -559,17 +643,10 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert bytes into a Python Message object.&quot;&quot;&quot;</span>
         <span class="n">mapping</span> <span class="o">=</span> <span class="n">msgspec</span><span class="o">.</span><span class="n">msgpack</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
 
-        <span class="c1"># msgpack deserializes to lists by default, but all of our annotations use</span>
-        <span class="c1"># tuples.</span>
-        <span class="k">def</span><span class="w"> </span><span class="nf">lists_to_tuple</span><span class="p">(</span><span class="n">obj</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
-                <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">lists_to_tuple</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">obj</span><span class="p">)</span>
-            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
-                <span class="k">return</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">lists_to_tuple</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">obj</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">obj</span>
-
-        <span class="n">mapping</span> <span class="o">=</span> <span class="n">lists_to_tuple</span><span class="p">(</span><span class="n">mapping</span><span class="p">)</span>
+        <span class="c1"># List-to-tuple conversion is handled per-field in</span>
+        <span class="c1"># _prepare_for_deserialization (called from _from_serializable_dict),</span>
+        <span class="c1"># which uses type annotations to convert only where needed. This avoids</span>
+        <span class="c1"># a blanket recursive traversal of the entire message tree.</span>
         <span class="n">message_type</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_subclass_from_type_string</span><span class="p">()[</span><span class="n">cast</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">mapping</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;type&quot;</span><span class="p">))]</span>
         <span class="n">message_kwargs</span> <span class="o">=</span> <span class="n">message_type</span><span class="o">.</span><span class="n">_from_serializable_dict</span><span class="p">(</span><span class="n">mapping</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">message_type</span><span class="p">(</span><span class="o">**</span><span class="n">message_kwargs</span><span class="p">)</span></div>
@@ -631,7 +708,7 @@
           </div>
           <div class="right-details">
             <div class="icons">
-              <a class="muted-link " href="https://github.com/nerfstudio-project/viser" aria-label="GitHub">
+              <a class="muted-link " href="https://github.com/viser-project/viser" aria-label="GitHub">
             <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 16 16">
                 <path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path>
             </svg>

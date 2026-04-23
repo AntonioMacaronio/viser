@@ -18,6 +18,7 @@
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=5976cbfc" />
     <link rel="stylesheet" type="text/css" href="../../../_static/ansi.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo-extensions.css?v=302659d7" />
@@ -229,7 +230,7 @@
 
     async function getViserVersionList() {
       // This index.txt file is written by the docs.yml GitHub action.
-      // https://github.com/nerfstudio-project/viser/blob/main/.github/workflows/docs.yml
+      // https://github.com/viser-project/viser/blob/main/.github/workflows/docs.yml
       const response = await fetch("https://viser.studio/versions/index.txt", {
         cache: "no-cache",
       });
@@ -279,7 +280,7 @@
   <script async defer src="https://buttons.github.io/buttons.js"></script>
   <a
     class="github-button"
-    href="https://github.com/nerfstudio-project/viser"
+    href="https://github.com/viser-project/viser"
     data-color-scheme="no-preference: light; light: light; dark: light;"
     data-size="large"
     data-show-count="true"
@@ -311,6 +312,8 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../examples/scene/background_composite/">Depth compositing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../examples/scene/set_up_direction/">Set up direction</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../examples/scene/gaussian_splats/">Gaussian splats</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../examples/scene/fog/">Distance fog</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../examples/scene/arrows/">Arrow visualization</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../../examples/gui/">GUI Controls</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of GUI Controls</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -377,10 +380,11 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Notes</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../interactive_notebooks/">Interactive Notebooks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../conventions/">Frame Conventions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../performance_tips/">Performance Tips</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../development/">Development</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../embedded_visualizations/">Embedding Visualizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../embedded_visualizations/">Embedded Visualizations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../citation/">Citation</a></li>
 </ul>
 
@@ -427,6 +431,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">threading</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">asyncio</span><span class="w"> </span><span class="kn">import</span> <span class="n">AbstractEventLoop</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Mapping</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">concurrent.futures</span><span class="w"> </span><span class="kn">import</span> <span class="n">ThreadPoolExecutor</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
@@ -446,6 +451,7 @@
     <span class="n">LiteralString</span><span class="p">,</span>
     <span class="n">TypeAlias</span><span class="p">,</span>
     <span class="n">TypedDict</span><span class="p">,</span>
+    <span class="n">assert_never</span><span class="p">,</span>
     <span class="n">get_type_hints</span><span class="p">,</span>
 <span class="p">)</span>
 
@@ -454,13 +460,17 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">_messages</span><span class="p">,</span> <span class="n">uplot</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">._gui_handles</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">CommandEvent</span><span class="p">,</span>
+    <span class="n">CommandHandle</span><span class="p">,</span>
     <span class="n">GuiButtonGroupHandle</span><span class="p">,</span>
     <span class="n">GuiButtonHandle</span><span class="p">,</span>
     <span class="n">GuiCheckboxHandle</span><span class="p">,</span>
     <span class="n">GuiContainerProtocol</span><span class="p">,</span>
+    <span class="n">GuiDividerHandle</span><span class="p">,</span>
     <span class="n">GuiDropdownHandle</span><span class="p">,</span>
     <span class="n">GuiEvent</span><span class="p">,</span>
     <span class="n">GuiFolderHandle</span><span class="p">,</span>
+    <span class="n">GuiFormHandle</span><span class="p">,</span>
     <span class="n">GuiHtmlHandle</span><span class="p">,</span>
     <span class="n">GuiImageHandle</span><span class="p">,</span>
     <span class="n">GuiMarkdownHandle</span><span class="p">,</span>
@@ -480,6 +490,8 @@
     <span class="n">GuiVector3Handle</span><span class="p">,</span>
     <span class="n">SupportsRemoveProtocol</span><span class="p">,</span>
     <span class="n">UploadedFile</span><span class="p">,</span>
+    <span class="n">_CommandHandleState</span><span class="p">,</span>
+    <span class="n">_GuiButtonHandleState</span><span class="p">,</span>
     <span class="n">_GuiHandleState</span><span class="p">,</span>
     <span class="n">_GuiInputHandle</span><span class="p">,</span>
     <span class="n">_make_uuid</span><span class="p">,</span>
@@ -632,6 +644,7 @@
             <span class="s2">&quot;root&quot;</span><span class="p">:</span> <span class="n">_RootGuiContainer</span><span class="p">({})</span>
         <span class="p">}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_modal_handle_from_uuid</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">GuiModalHandle</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_command_handle_from_uuid</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">CommandHandle</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_current_file_upload_states</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">_FileUploadState</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
 
         <span class="c1"># Set to True when plotly.min.js has been sent to client.</span>
@@ -641,19 +654,44 @@
             <span class="n">_messages</span><span class="o">.</span><span class="n">GuiUpdateMessage</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handle_gui_updates</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_websock_interface</span><span class="o">.</span><span class="n">register_handler</span><span class="p">(</span>
+            <span class="n">_messages</span><span class="o">.</span><span class="n">GuiButtonHoldMessage</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handle_gui_button_hold</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_websock_interface</span><span class="o">.</span><span class="n">register_handler</span><span class="p">(</span>
+            <span class="n">_messages</span><span class="o">.</span><span class="n">GuiFormSubmitMessage</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handle_gui_form_submit</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_websock_interface</span><span class="o">.</span><span class="n">register_handler</span><span class="p">(</span>
+            <span class="n">_messages</span><span class="o">.</span><span class="n">GuiFormDirtyMessage</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handle_gui_form_dirty</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_websock_interface</span><span class="o">.</span><span class="n">register_handler</span><span class="p">(</span>
             <span class="n">_messages</span><span class="o">.</span><span class="n">FileTransferStartUpload</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handle_file_transfer_start</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_websock_interface</span><span class="o">.</span><span class="n">register_handler</span><span class="p">(</span>
             <span class="n">_messages</span><span class="o">.</span><span class="n">FileTransferPart</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_handle_file_transfer_part</span><span class="p">,</span>
         <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_websock_interface</span><span class="o">.</span><span class="n">register_handler</span><span class="p">(</span>
+            <span class="n">_messages</span><span class="o">.</span><span class="n">CommandTriggerMessage</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handle_command_trigger</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_resolve_client</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client_id</span><span class="p">:</span> <span class="n">ClientId</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ClientHandle</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Resolve the ClientHandle for a given client_id. Returns None when</span>
+<span class="sd">        the client has disconnected between queuing and dispatch -- callers</span>
+<span class="sd">        should early-return.&quot;&quot;&quot;</span>
+        <span class="c1"># Runtime import to break the circular edge with `_viser`.</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">._viser</span><span class="w"> </span><span class="kn">import</span> <span class="n">ClientHandle</span><span class="p">,</span> <span class="n">ViserServer</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_owner</span><span class="p">,</span> <span class="n">ClientHandle</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_owner</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_owner</span><span class="p">,</span> <span class="n">ViserServer</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_owner</span><span class="o">.</span><span class="n">_connected_clients</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">client_id</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">assert_never</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_owner</span><span class="p">)</span>
 
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_handle_gui_updates</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">client_id</span><span class="p">:</span> <span class="n">ClientId</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="n">_messages</span><span class="o">.</span><span class="n">GuiUpdateMessage</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Callback for handling GUI messages.&quot;&quot;&quot;</span>
         <span class="n">handle</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gui_input_handle_from_uuid</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">message</span><span class="o">.</span><span class="n">uuid</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">handle</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">handle</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">handle</span><span class="o">.</span><span class="n">_impl</span><span class="o">.</span><span class="n">removed</span><span class="p">:</span>
             <span class="k">return</span>
         <span class="n">handle_state</span> <span class="o">=</span> <span class="n">handle</span><span class="o">.</span><span class="n">_impl</span>
 
@@ -694,19 +732,10 @@
 
         <span class="c1"># GUI element has been updated!</span>
         <span class="n">handle_state</span><span class="o">.</span><span class="n">update_timestamp</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">client</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_client</span><span class="p">(</span><span class="n">client_id</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">client</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span>
         <span class="k">for</span> <span class="n">cb</span> <span class="ow">in</span> <span class="n">handle_state</span><span class="o">.</span><span class="n">update_cb</span><span class="p">:</span>
-            <span class="kn">from</span><span class="w"> </span><span class="nn">._viser</span><span class="w"> </span><span class="kn">import</span> <span class="n">ClientHandle</span><span class="p">,</span> <span class="n">ViserServer</span>
-
-            <span class="c1"># Get the handle of the client that triggered this event.</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_owner</span><span class="p">,</span> <span class="n">ClientHandle</span><span class="p">):</span>
-                <span class="n">client</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_owner</span>
-            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_owner</span><span class="p">,</span> <span class="n">ViserServer</span><span class="p">):</span>
-                <span class="n">client</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_owner</span><span class="o">.</span><span class="n">_connected_clients</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">client_id</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">client</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="k">return</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">assert</span> <span class="kc">False</span>
-
             <span class="k">if</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">iscoroutinefunction</span><span class="p">(</span><span class="n">cb</span><span class="p">):</span>
                 <span class="k">await</span> <span class="n">cb</span><span class="p">(</span><span class="n">GuiEvent</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">client_id</span><span class="p">,</span> <span class="n">handle</span><span class="p">))</span>
             <span class="k">else</span><span class="p">:</span>
@@ -716,6 +745,72 @@
 
         <span class="k">if</span> <span class="n">handle_state</span><span class="o">.</span><span class="n">sync_cb</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">handle_state</span><span class="o">.</span><span class="n">sync_cb</span><span class="p">(</span><span class="n">client_id</span><span class="p">,</span> <span class="n">updates_cast</span><span class="p">)</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_handle_gui_button_hold</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">client_id</span><span class="p">:</span> <span class="n">ClientId</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="n">_messages</span><span class="o">.</span><span class="n">GuiButtonHoldMessage</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Callback for handling button hold messages.&quot;&quot;&quot;</span>
+        <span class="n">handle</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gui_input_handle_from_uuid</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">message</span><span class="o">.</span><span class="n">uuid</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">handle</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">handle</span><span class="o">.</span><span class="n">_impl</span><span class="o">.</span><span class="n">removed</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="c1"># Ensure this is a button handle with hold callbacks.</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span> <span class="n">GuiButtonHandle</span><span class="p">):</span>
+            <span class="k">return</span>
+
+        <span class="c1"># Get callbacks registered for this frequency.</span>
+        <span class="n">callbacks</span> <span class="o">=</span> <span class="n">handle</span><span class="o">.</span><span class="n">_button_impl</span><span class="o">.</span><span class="n">hold_cbs_from_freq</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">message</span><span class="o">.</span><span class="n">frequency</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">callbacks</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="n">client</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_client</span><span class="p">(</span><span class="n">client_id</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">client</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="c1"># Call all callbacks for this frequency.</span>
+        <span class="k">for</span> <span class="n">cb</span> <span class="ow">in</span> <span class="n">callbacks</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">iscoroutinefunction</span><span class="p">(</span><span class="n">cb</span><span class="p">):</span>
+                <span class="k">await</span> <span class="n">cb</span><span class="p">(</span><span class="n">GuiEvent</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">client_id</span><span class="p">,</span> <span class="n">handle</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_thread_executor</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span>
+                    <span class="n">cb</span><span class="p">,</span> <span class="n">GuiEvent</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">client_id</span><span class="p">,</span> <span class="n">handle</span><span class="p">)</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">add_done_callback</span><span class="p">(</span><span class="n">print_threadpool_errors</span><span class="p">)</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_handle_gui_form_submit</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">client_id</span><span class="p">:</span> <span class="n">ClientId</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="n">_messages</span><span class="o">.</span><span class="n">GuiFormSubmitMessage</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Callback for client-initiated form submits (Cmd/Ctrl+Enter).</span>
+
+<span class="sd">        Fires the form&#39;s on_submit callbacks and broadcasts the message back</span>
+<span class="sd">        to all clients so they reset their dirty indicators.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">handle</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_container_handle_from_uuid</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">message</span><span class="o">.</span><span class="n">uuid</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span> <span class="n">GuiFormHandle</span><span class="p">):</span>
+            <span class="k">return</span>
+
+        <span class="n">client</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_client</span><span class="p">(</span><span class="n">client_id</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">client</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="k">for</span> <span class="n">cb</span> <span class="ow">in</span> <span class="n">handle</span><span class="o">.</span><span class="n">_submit_cb</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">iscoroutinefunction</span><span class="p">(</span><span class="n">cb</span><span class="p">):</span>
+                <span class="k">await</span> <span class="n">cb</span><span class="p">(</span><span class="n">GuiEvent</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">client_id</span><span class="p">,</span> <span class="n">handle</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_thread_executor</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span>
+                    <span class="n">cb</span><span class="p">,</span> <span class="n">GuiEvent</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">client_id</span><span class="p">,</span> <span class="n">handle</span><span class="p">)</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">add_done_callback</span><span class="p">(</span><span class="n">print_threadpool_errors</span><span class="p">)</span>
+
+        <span class="c1"># Broadcast to clients so they clear their dirty indicators.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_websock_interface</span><span class="o">.</span><span class="n">queue_message</span><span class="p">(</span>
+            <span class="n">_messages</span><span class="o">.</span><span class="n">GuiFormSubmitMessage</span><span class="p">(</span><span class="n">uuid</span><span class="o">=</span><span class="n">message</span><span class="o">.</span><span class="n">uuid</span><span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_handle_gui_form_dirty</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">client_id</span><span class="p">:</span> <span class="n">ClientId</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="n">_messages</span><span class="o">.</span><span class="n">GuiFormDirtyMessage</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Broadcast form dirty signal to all other clients.&quot;&quot;&quot;</span>
+        <span class="n">message</span><span class="o">.</span><span class="n">excluded_self_client</span> <span class="o">=</span> <span class="n">client_id</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_websock_interface</span><span class="o">.</span><span class="n">queue_message</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_handle_file_transfer_start</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">client_id</span><span class="p">:</span> <span class="n">ClientId</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="n">_messages</span><span class="o">.</span><span class="n">FileTransferStartUpload</span>
@@ -766,7 +861,7 @@
         <span class="n">handle</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gui_input_handle_from_uuid</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
             <span class="n">message</span><span class="o">.</span><span class="n">source_component_uuid</span><span class="p">,</span> <span class="kc">None</span>
         <span class="p">)</span>
-        <span class="k">if</span> <span class="n">handle</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">handle</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">handle</span><span class="o">.</span><span class="n">_impl</span><span class="o">.</span><span class="n">removed</span><span class="p">:</span>
             <span class="k">return</span>
 
         <span class="n">handle_state</span> <span class="o">=</span> <span class="n">handle</span><span class="o">.</span><span class="n">_impl</span>
@@ -781,24 +876,38 @@
         <span class="n">handle_state</span><span class="o">.</span><span class="n">update_timestamp</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
 
         <span class="c1"># Trigger callbacks.</span>
+        <span class="n">client</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_client</span><span class="p">(</span><span class="n">client_id</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">client</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span>
         <span class="k">for</span> <span class="n">cb</span> <span class="ow">in</span> <span class="n">handle_state</span><span class="o">.</span><span class="n">update_cb</span><span class="p">:</span>
-            <span class="kn">from</span><span class="w"> </span><span class="nn">._viser</span><span class="w"> </span><span class="kn">import</span> <span class="n">ClientHandle</span><span class="p">,</span> <span class="n">ViserServer</span>
-
-            <span class="c1"># Get the handle of the client that triggered this event.</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_owner</span><span class="p">,</span> <span class="n">ClientHandle</span><span class="p">):</span>
-                <span class="n">client</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_owner</span>
-            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_owner</span><span class="p">,</span> <span class="n">ViserServer</span><span class="p">):</span>
-                <span class="n">client</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_owner</span><span class="o">.</span><span class="n">_connected_clients</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">client_id</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">client</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="k">return</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">assert</span> <span class="kc">False</span>
-
             <span class="k">if</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">iscoroutinefunction</span><span class="p">(</span><span class="n">cb</span><span class="p">):</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_event_loop</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">cb</span><span class="p">(</span><span class="n">GuiEvent</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">client_id</span><span class="p">,</span> <span class="n">handle</span><span class="p">)))</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_thread_executor</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span>
                     <span class="n">cb</span><span class="p">,</span> <span class="n">GuiEvent</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">client_id</span><span class="p">,</span> <span class="n">handle</span><span class="p">)</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">add_done_callback</span><span class="p">(</span><span class="n">print_threadpool_errors</span><span class="p">)</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_handle_command_trigger</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">client_id</span><span class="p">:</span> <span class="n">ClientId</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="n">_messages</span><span class="o">.</span><span class="n">CommandTriggerMessage</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Callback for handling command trigger messages from the command palette.&quot;&quot;&quot;</span>
+        <span class="n">handle</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_command_handle_from_uuid</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">message</span><span class="o">.</span><span class="n">uuid</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">handle</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">handle</span><span class="o">.</span><span class="n">_impl</span><span class="o">.</span><span class="n">removed</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="n">handle_state</span> <span class="o">=</span> <span class="n">handle</span><span class="o">.</span><span class="n">_impl</span>
+        <span class="k">if</span> <span class="n">handle_state</span><span class="o">.</span><span class="n">props</span><span class="o">.</span><span class="n">disabled</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="n">client</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_client</span><span class="p">(</span><span class="n">client_id</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">client</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="k">for</span> <span class="n">cb</span> <span class="ow">in</span> <span class="n">handle_state</span><span class="o">.</span><span class="n">trigger_cb</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">iscoroutinefunction</span><span class="p">(</span><span class="n">cb</span><span class="p">):</span>
+                <span class="k">await</span> <span class="n">cb</span><span class="p">(</span><span class="n">CommandEvent</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">client_id</span><span class="p">,</span> <span class="n">handle</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_thread_executor</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span>
+                    <span class="n">cb</span><span class="p">,</span> <span class="n">CommandEvent</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">client_id</span><span class="p">,</span> <span class="n">handle</span><span class="p">)</span>
                 <span class="p">)</span><span class="o">.</span><span class="n">add_done_callback</span><span class="p">(</span><span class="n">print_threadpool_errors</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_get_container_uuid</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
@@ -814,10 +923,12 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Reset the GUI.&quot;&quot;&quot;</span>
         <span class="n">root_container</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_container_handle_from_uuid</span><span class="p">[</span><span class="s2">&quot;root&quot;</span><span class="p">]</span>
-        <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">root_container</span><span class="o">.</span><span class="n">_children</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">while</span> <span class="n">root_container</span><span class="o">.</span><span class="n">_children</span><span class="p">:</span>
             <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">root_container</span><span class="o">.</span><span class="n">_children</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span><span class="o">.</span><span class="n">remove</span><span class="p">()</span>
-        <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_modal_handle_from_uuid</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_modal_handle_from_uuid</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+        <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">_modal_handle_from_uuid</span><span class="p">:</span>
+            <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_modal_handle_from_uuid</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">_command_handle_from_uuid</span><span class="p">:</span>
+            <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_command_handle_from_uuid</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span><span class="o">.</span><span class="n">remove</span><span class="p">()</span></div>
 
 
 <div class="viewcode-block" id="GuiApi.set_panel_label">
@@ -909,12 +1020,66 @@
         <span class="p">)</span></div>
 
 
+<div class="viewcode-block" id="GuiApi.add_command">
+<a class="viewcode-back" href="../../../api/core/gui_api/#viser.GuiApi.add_command">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_command</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">label</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">description</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">hotkey</span><span class="p">:</span> <span class="n">_messages</span><span class="o">.</span><span class="n">Hotkey</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">icon</span><span class="p">:</span> <span class="n">IconName</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">disabled</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandHandle</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Register a command that can be triggered from the client&#39;s command palette.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            label: Label displayed in the command palette.</span>
+<span class="sd">            description: Optional description displayed below the label.</span>
+<span class="sd">            hotkey: Optional hotkey binding. Can be a single key like ``&quot;K&quot;``</span>
+<span class="sd">                or a tuple with modifiers like ``(&quot;mod&quot;, &quot;shift&quot;, &quot;R&quot;)``.</span>
+<span class="sd">                ``mod`` maps to Cmd on macOS and Ctrl on other platforms.</span>
+<span class="sd">            icon: Optional icon to display next to the command label.</span>
+<span class="sd">            disabled: If True, the command is visible but not triggerable.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A handle that can be used to attach callbacks via</span>
+<span class="sd">            :meth:`CommandHandle.on_trigger`, update properties, or remove the</span>
+<span class="sd">            command.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">command_uuid</span> <span class="o">=</span> <span class="n">_make_uuid</span><span class="p">()</span>
+        <span class="n">props</span> <span class="o">=</span> <span class="n">_messages</span><span class="o">.</span><span class="n">CommandProps</span><span class="p">(</span>
+            <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="n">description</span><span class="p">,</span>
+            <span class="n">hotkey</span><span class="o">=</span><span class="n">hotkey</span><span class="p">,</span>
+            <span class="n">disabled</span><span class="o">=</span><span class="n">disabled</span><span class="p">,</span>
+            <span class="n">_icon_html</span><span class="o">=</span><span class="kc">None</span> <span class="k">if</span> <span class="n">icon</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">svg_from_icon</span><span class="p">(</span><span class="n">icon</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="c1"># Register in the local map before publishing, so an immediate</span>
+        <span class="c1"># trigger from the client can be resolved here.</span>
+        <span class="n">handle_state</span> <span class="o">=</span> <span class="n">_CommandHandleState</span><span class="p">(</span>
+            <span class="n">uuid</span><span class="o">=</span><span class="n">command_uuid</span><span class="p">,</span>
+            <span class="n">gui_api</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
+            <span class="n">props</span><span class="o">=</span><span class="n">props</span><span class="p">,</span>
+            <span class="n">icon</span><span class="o">=</span><span class="n">icon</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">handle</span> <span class="o">=</span> <span class="n">CommandHandle</span><span class="p">(</span><span class="n">handle_state</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_command_handle_from_uuid</span><span class="p">[</span><span class="n">command_uuid</span><span class="p">]</span> <span class="o">=</span> <span class="n">handle</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_websock_interface</span><span class="o">.</span><span class="n">queue_message</span><span class="p">(</span>
+            <span class="n">_messages</span><span class="o">.</span><span class="n">RegisterCommandMessage</span><span class="p">(</span>
+                <span class="n">uuid</span><span class="o">=</span><span class="n">command_uuid</span><span class="p">,</span>
+                <span class="n">props</span><span class="o">=</span><span class="n">props</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">handle</span></div>
+
+
 <div class="viewcode-block" id="GuiApi.add_folder">
 <a class="viewcode-back" href="../../../api/core/gui_api/#viser.GuiApi.add_folder">[docs]</a>
     <span class="nd">@deprecated_positional_shim</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">add_folder</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">label</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">label</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">order</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">expand_by_default</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
@@ -923,10 +1088,12 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Add a folder, and return a handle that can be used to populate it.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            label: Label to display on the folder.</span>
+<span class="sd">            label: Label to display on the folder. If ``None``, the folder is</span>
+<span class="sd">                rendered without a header or border, which is useful for pure</span>
+<span class="sd">                layout grouping.</span>
 <span class="sd">            order: Optional ordering, smallest values will be displayed first.</span>
 <span class="sd">            expand_by_default: Open the folder by default. Set to False to collapse it by</span>
-<span class="sd">                default.</span>
+<span class="sd">                default. Ignored when ``label`` is ``None``.</span>
 <span class="sd">            visible: Whether the component is visible.</span>
 
 <span class="sd">        Returns:</span>
@@ -950,6 +1117,74 @@
         <span class="k">return</span> <span class="n">GuiFolderHandle</span><span class="p">(</span>
             <span class="n">_GuiHandleState</span><span class="p">(</span>
                 <span class="n">folder_container_id</span><span class="p">,</span>
+                <span class="bp">self</span><span class="p">,</span>
+                <span class="kc">None</span><span class="p">,</span>
+                <span class="n">props</span><span class="o">=</span><span class="n">props</span><span class="p">,</span>
+                <span class="n">parent_container_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_container_uuid</span><span class="p">(),</span>
+            <span class="p">)</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="GuiApi.add_form">
+<a class="viewcode-back" href="../../../api/core/gui_api/#viser.GuiApi.add_form">[docs]</a>
+    <span class="nd">@deprecated_positional_shim</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_form</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">label</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">order</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">expand_by_default</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">visible</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">GuiFormHandle</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add a form, and return a handle that can be used to populate it.</span>
+
+<span class="sd">        See :class:`GuiFormHandle` for usage and semantics.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            label: Label to display on the form. If ``None``, the form is</span>
+<span class="sd">                rendered without a header or border.</span>
+<span class="sd">            order: Optional ordering, smallest values will be displayed first.</span>
+<span class="sd">            expand_by_default: Open the form by default. Set to False to</span>
+<span class="sd">                collapse it by default. Ignored when ``label`` is ``None``.</span>
+<span class="sd">            visible: Whether the component is visible.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A handle that can be used as a context to populate the form.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Nested forms would produce invalid HTML on the client (nested</span>
+        <span class="c1"># &lt;form&gt; elements are not allowed and the browser flattens them).</span>
+        <span class="n">container</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_container_uuid</span><span class="p">()</span>
+        <span class="k">while</span> <span class="n">container</span> <span class="o">!=</span> <span class="s2">&quot;root&quot;</span><span class="p">:</span>
+            <span class="n">parent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_container_handle_from_uuid</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">container</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">GuiFormHandle</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;Nested forms are not supported: add_form() was called &quot;</span>
+                    <span class="s2">&quot;inside an existing form&#39;s context.&quot;</span>
+                <span class="p">)</span>
+            <span class="c1"># Only folder-like handles have an _impl.parent_container_id we</span>
+            <span class="c1"># can walk. For other container types (modals, tabs), stop.</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">GuiFolderHandle</span><span class="p">):</span>
+                <span class="k">break</span>
+            <span class="n">container</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="n">_impl</span><span class="o">.</span><span class="n">parent_container_id</span>
+
+        <span class="n">form_container_id</span> <span class="o">=</span> <span class="n">_make_uuid</span><span class="p">()</span>
+        <span class="n">order</span> <span class="o">=</span> <span class="n">_apply_default_order</span><span class="p">(</span><span class="n">order</span><span class="p">)</span>
+        <span class="n">props</span> <span class="o">=</span> <span class="n">_messages</span><span class="o">.</span><span class="n">GuiFolderProps</span><span class="p">(</span>
+            <span class="n">order</span><span class="o">=</span><span class="n">order</span><span class="p">,</span>
+            <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span>
+            <span class="n">expand_by_default</span><span class="o">=</span><span class="n">expand_by_default</span><span class="p">,</span>
+            <span class="n">visible</span><span class="o">=</span><span class="n">visible</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_websock_interface</span><span class="o">.</span><span class="n">queue_message</span><span class="p">(</span>
+            <span class="n">_messages</span><span class="o">.</span><span class="n">GuiFormMessage</span><span class="p">(</span>
+                <span class="n">uuid</span><span class="o">=</span><span class="n">form_container_id</span><span class="p">,</span>
+                <span class="n">container_uuid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_container_uuid</span><span class="p">(),</span>
+                <span class="n">props</span><span class="o">=</span><span class="n">props</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">GuiFormHandle</span><span class="p">(</span>
+            <span class="n">_GuiHandleState</span><span class="p">(</span>
+                <span class="n">form_container_id</span><span class="p">,</span>
                 <span class="bp">self</span><span class="p">,</span>
                 <span class="kc">None</span><span class="p">,</span>
                 <span class="n">props</span><span class="o">=</span><span class="n">props</span><span class="p">,</span>
@@ -1130,6 +1365,46 @@
         <span class="k">return</span> <span class="n">handle</span></div>
 
 
+<div class="viewcode-block" id="GuiApi.add_divider">
+<a class="viewcode-back" href="../../../api/core/gui_api/#viser.GuiApi.add_divider">[docs]</a>
+    <span class="nd">@deprecated_positional_shim</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_divider</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">order</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">visible</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">GuiDividerHandle</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add a horizontal divider line to the GUI.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            order: Optional ordering, smallest values will be displayed first.</span>
+<span class="sd">            visible: Whether the component is visible.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A handle that can be used to interact with the GUI element.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">message</span> <span class="o">=</span> <span class="n">_messages</span><span class="o">.</span><span class="n">GuiDividerMessage</span><span class="p">(</span>
+            <span class="n">uuid</span><span class="o">=</span><span class="n">_make_uuid</span><span class="p">(),</span>
+            <span class="n">container_uuid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_container_uuid</span><span class="p">(),</span>
+            <span class="n">props</span><span class="o">=</span><span class="n">_messages</span><span class="o">.</span><span class="n">GuiDividerProps</span><span class="p">(</span>
+                <span class="n">order</span><span class="o">=</span><span class="n">_apply_default_order</span><span class="p">(</span><span class="n">order</span><span class="p">),</span>
+                <span class="n">visible</span><span class="o">=</span><span class="n">visible</span><span class="p">,</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_websock_interface</span><span class="o">.</span><span class="n">queue_message</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+
+        <span class="n">handle</span> <span class="o">=</span> <span class="n">GuiDividerHandle</span><span class="p">(</span>
+            <span class="n">_GuiHandleState</span><span class="p">(</span>
+                <span class="n">message</span><span class="o">.</span><span class="n">uuid</span><span class="p">,</span>
+                <span class="bp">self</span><span class="p">,</span>
+                <span class="kc">None</span><span class="p">,</span>
+                <span class="n">props</span><span class="o">=</span><span class="n">message</span><span class="o">.</span><span class="n">props</span><span class="p">,</span>
+                <span class="n">parent_container_id</span><span class="o">=</span><span class="n">message</span><span class="o">.</span><span class="n">container_uuid</span><span class="p">,</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">handle</span></div>
+
+
 <div class="viewcode-block" id="GuiApi.add_image">
 <a class="viewcode-back" href="../../../api/core/gui_api/#viser.GuiApi.add_image">[docs]</a>
     <span class="nd">@deprecated_positional_shim</span>
@@ -1198,6 +1473,7 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">figure</span><span class="p">:</span> <span class="n">go</span><span class="o">.</span><span class="n">Figure</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
+        <span class="n">config</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">aspect</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
         <span class="n">order</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">visible</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
@@ -1211,6 +1487,10 @@
 
 <span class="sd">        Args:</span>
 <span class="sd">            figure: Plotly figure to display.</span>
+<span class="sd">            config: Plotly config dict merged into the figure JSON. Controls</span>
+<span class="sd">                display options like ``{&quot;displayModeBar&quot;: False}``. Values</span>
+<span class="sd">                must be JSON-serializable. See</span>
+<span class="sd">                https://plotly.com/javascript/configuration-options/</span>
 <span class="sd">            aspect: Aspect ratio of the plot in the control panel (width/height).</span>
 <span class="sd">            order: Optional ordering, smallest values will be displayed first.</span>
 <span class="sd">            visible: Whether the component is visible.</span>
@@ -1270,6 +1550,7 @@
                 <span class="n">parent_container_id</span><span class="o">=</span><span class="n">message</span><span class="o">.</span><span class="n">container_uuid</span><span class="p">,</span>
             <span class="p">),</span>
             <span class="n">_figure</span><span class="o">=</span><span class="n">figure</span><span class="p">,</span>
+            <span class="n">_config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="c1"># Set the plotly handle properties.</span>
@@ -1295,6 +1576,8 @@
         <span class="n">cursor</span><span class="p">:</span> <span class="n">uplot</span><span class="o">.</span><span class="n">Cursor</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">focus</span><span class="p">:</span> <span class="n">uplot</span><span class="o">.</span><span class="n">Focus</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">aspect</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
+        <span class="n">height</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">padding</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">order</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">visible</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">GuiUplotHandle</span><span class="p">:</span>
@@ -1339,6 +1622,10 @@
 <span class="sd">                transparency of non-focused series to emphasize the active one.</span>
 <span class="sd">            aspect: Width-to-height ratio for the chart display in the control panel.</span>
 <span class="sd">                1.0 creates a square chart, values &gt; 1.0 create wider charts.</span>
+<span class="sd">                Used when height is None.</span>
+<span class="sd">            height: Fixed height in pixels. Overrides aspect ratio when set.</span>
+<span class="sd">            padding: Chart padding (top, right, bottom, left) in pixels. Defaults</span>
+<span class="sd">                to (0, 24, 0, 0) when omitted.</span>
 <span class="sd">            order: Display ordering relative to other GUI elements (lower values first).</span>
 <span class="sd">            visible: Whether the chart is visible in the interface.</span>
 
@@ -1392,6 +1679,8 @@
                 <span class="n">cursor</span><span class="o">=</span><span class="n">cursor</span><span class="p">,</span>
                 <span class="n">focus</span><span class="o">=</span><span class="n">focus</span><span class="p">,</span>
                 <span class="n">aspect</span><span class="o">=</span><span class="n">aspect</span><span class="p">,</span>
+                <span class="n">height</span><span class="o">=</span><span class="n">height</span><span class="p">,</span>
+                <span class="n">padding</span><span class="o">=</span><span class="n">padding</span><span class="p">,</span>
                 <span class="n">visible</span><span class="o">=</span><span class="n">visible</span><span class="p">,</span>
             <span class="p">),</span>
         <span class="p">)</span>
@@ -1441,27 +1730,41 @@
         <span class="c1"># Re-wrap the GUI handle with a button interface.</span>
         <span class="n">uuid</span> <span class="o">=</span> <span class="n">_make_uuid</span><span class="p">()</span>
         <span class="n">order</span> <span class="o">=</span> <span class="n">_apply_default_order</span><span class="p">(</span><span class="n">order</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">GuiButtonHandle</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_create_gui_input</span><span class="p">(</span>
-                <span class="n">value</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                <span class="n">message</span><span class="o">=</span><span class="n">_messages</span><span class="o">.</span><span class="n">GuiButtonMessage</span><span class="p">(</span>
-                    <span class="n">value</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                    <span class="n">uuid</span><span class="o">=</span><span class="n">uuid</span><span class="p">,</span>
-                    <span class="n">container_uuid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_container_uuid</span><span class="p">(),</span>
-                    <span class="n">props</span><span class="o">=</span><span class="n">_messages</span><span class="o">.</span><span class="n">GuiButtonProps</span><span class="p">(</span>
-                        <span class="n">order</span><span class="o">=</span><span class="n">order</span><span class="p">,</span>
-                        <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span>
-                        <span class="n">hint</span><span class="o">=</span><span class="n">hint</span><span class="p">,</span>
-                        <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span>
-                        <span class="n">_icon_html</span><span class="o">=</span><span class="kc">None</span> <span class="k">if</span> <span class="n">icon</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">svg_from_icon</span><span class="p">(</span><span class="n">icon</span><span class="p">),</span>
-                        <span class="n">disabled</span><span class="o">=</span><span class="n">disabled</span><span class="p">,</span>
-                        <span class="n">visible</span><span class="o">=</span><span class="n">visible</span><span class="p">,</span>
-                    <span class="p">),</span>
-                <span class="p">),</span>
-                <span class="n">is_button</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-            <span class="p">),</span>
-            <span class="n">_icon</span><span class="o">=</span><span class="n">icon</span><span class="p">,</span>
-        <span class="p">)</span></div>
+        <span class="n">props</span> <span class="o">=</span> <span class="n">_messages</span><span class="o">.</span><span class="n">GuiButtonProps</span><span class="p">(</span>
+            <span class="n">order</span><span class="o">=</span><span class="n">order</span><span class="p">,</span>
+            <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span>
+            <span class="n">hint</span><span class="o">=</span><span class="n">hint</span><span class="p">,</span>
+            <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span>
+            <span class="n">_icon_html</span><span class="o">=</span><span class="kc">None</span> <span class="k">if</span> <span class="n">icon</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">svg_from_icon</span><span class="p">(</span><span class="n">icon</span><span class="p">),</span>
+            <span class="n">_hold_callback_freqs</span><span class="o">=</span><span class="p">(),</span>
+            <span class="n">disabled</span><span class="o">=</span><span class="n">disabled</span><span class="p">,</span>
+            <span class="n">visible</span><span class="o">=</span><span class="n">visible</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">message</span> <span class="o">=</span> <span class="n">_messages</span><span class="o">.</span><span class="n">GuiButtonMessage</span><span class="p">(</span>
+            <span class="n">value</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">uuid</span><span class="o">=</span><span class="n">uuid</span><span class="p">,</span>
+            <span class="n">container_uuid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_container_uuid</span><span class="p">(),</span>
+            <span class="n">props</span><span class="o">=</span><span class="n">props</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Send the message.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_websock_interface</span><span class="o">.</span><span class="n">queue_message</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+
+        <span class="c1"># Construct button-specific handle state with hold callback support.</span>
+        <span class="n">handle_state</span> <span class="o">=</span> <span class="n">_GuiButtonHandleState</span><span class="p">(</span>
+            <span class="n">props</span><span class="o">=</span><span class="n">props</span><span class="p">,</span>
+            <span class="n">gui_api</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
+            <span class="n">value</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">update_timestamp</span><span class="o">=</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">(),</span>
+            <span class="n">parent_container_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_container_uuid</span><span class="p">(),</span>
+            <span class="n">update_cb</span><span class="o">=</span><span class="p">[],</span>
+            <span class="n">is_button</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">sync_cb</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">uuid</span><span class="o">=</span><span class="n">uuid</span><span class="p">,</span>
+            <span class="n">hold_cbs_from_freq</span><span class="o">=</span><span class="p">{},</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">GuiButtonHandle</span><span class="p">(</span><span class="n">handle_state</span><span class="p">,</span> <span class="n">_icon</span><span class="o">=</span><span class="n">icon</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="GuiApi.add_upload_button">
@@ -2366,7 +2669,7 @@
           </div>
           <div class="right-details">
             <div class="icons">
-              <a class="muted-link " href="https://github.com/nerfstudio-project/viser" aria-label="GitHub">
+              <a class="muted-link " href="https://github.com/viser-project/viser" aria-label="GitHub">
             <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 16 16">
                 <path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path>
             </svg>
