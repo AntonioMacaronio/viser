@@ -327,6 +327,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../../examples/gui/plotly_integration/">Plotly integration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../examples/gui/uplot/">uPlot integration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../examples/gui/plots_as_images/">Plots as images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../examples/gui/commands/">Commands</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../../../examples/interaction/">User Interaction</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of User Interaction</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -336,6 +337,8 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../../examples/interaction/camera_poses/">Camera pose tracking</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../examples/interaction/camera_commands/">Programmatic camera control</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../examples/interaction/gui_in_scene/">3D GUI elements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../examples/interaction/scene_node_drag/">Scene-node drag events with rigid-body physics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../examples/interaction/batched_scene_node_drag/">Drag events on batched scene nodes</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../../../examples/demos/">Demos</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle navigation of Demos</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -441,6 +444,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Coroutine</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Generator</span><span class="p">,</span> <span class="n">NewType</span><span class="p">,</span> <span class="n">TypeVar</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">urllib.parse</span><span class="w"> </span><span class="kn">import</span> <span class="n">unquote</span> <span class="k">as</span> <span class="n">_url_unquote</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">msgspec.msgpack</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">websockets.asyncio.server</span>
@@ -453,7 +457,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">websockets.http11</span><span class="w"> </span><span class="kn">import</span> <span class="n">Request</span><span class="p">,</span> <span class="n">Response</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">websockets.typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Subprotocol</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">viser</span>  <span class="c1"># Import for version checking</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">viser</span>  <span class="c1"># Import for version checking.</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">._async_message_buffer</span><span class="w"> </span><span class="kn">import</span> <span class="n">AsyncMessageBuffer</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">._messages</span><span class="w"> </span><span class="kn">import</span> <span class="n">Message</span>
@@ -698,7 +702,10 @@
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Handle incoming messages.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">message</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_incoming_handlers</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">cb</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_incoming_handlers</span><span class="p">[</span><span class="nb">type</span><span class="p">(</span><span class="n">message</span><span class="p">)]:</span>
+            <span class="c1"># Snapshot the list: a handler may unregister itself mid-dispatch</span>
+            <span class="c1"># (e.g. get_render&#39;s response callback), which would otherwise skip</span>
+            <span class="c1"># the next handler in a live iteration.</span>
+            <span class="k">for</span> <span class="n">cb</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_incoming_handlers</span><span class="p">[</span><span class="nb">type</span><span class="p">(</span><span class="n">message</span><span class="p">)]):</span>
                 <span class="k">if</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">iscoroutinefunction</span><span class="p">(</span><span class="n">cb</span><span class="p">):</span>
                     <span class="k">await</span> <span class="n">cb</span><span class="p">(</span><span class="n">client_id</span><span class="p">,</span> <span class="n">message</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
@@ -735,9 +742,16 @@
 <span class="sd">            Context manager.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># If called multiple times in the same thread, we ignore inner calls.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">get_message_buffer</span><span class="p">()</span><span class="o">.</span><span class="n">atomic_start</span><span class="p">()</span>
-        <span class="k">yield</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">get_message_buffer</span><span class="p">()</span><span class="o">.</span><span class="n">atomic_end</span><span class="p">()</span></div>
+        <span class="c1">#</span>
+        <span class="c1"># try/finally so an exception raised inside the `with` body still</span>
+        <span class="c1"># decrements the counter. Otherwise atomic_end() is skipped and the</span>
+        <span class="c1"># counter stays stuck != 0, stalling message delivery permanently.</span>
+        <span class="n">buffer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_message_buffer</span><span class="p">()</span>
+        <span class="n">buffer</span><span class="o">.</span><span class="n">atomic_start</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">yield</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="n">buffer</span><span class="o">.</span><span class="n">atomic_end</span><span class="p">()</span></div>
 </div>
 
 
@@ -1021,6 +1035,12 @@
                 <span class="n">websockets</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">ConnectionClosedOK</span><span class="p">,</span>
                 <span class="n">websockets</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">ConnectionClosedError</span><span class="p">,</span>
             <span class="p">):</span>
+                <span class="c1"># Expected disconnects -- swallow. Any other exit (CancelledError</span>
+                <span class="c1"># on shutdown, an exception from a producer/consumer) still runs</span>
+                <span class="c1"># the teardown below via `finally`, so client state can&#39;t leak</span>
+                <span class="c1"># and disconnect callbacks always fire.</span>
+                <span class="k">pass</span>
+            <span class="k">finally</span><span class="p">:</span>
                 <span class="c1"># We use a sentinel value to signal that the client producer thread</span>
                 <span class="c1"># should exit.</span>
                 <span class="c1">#</span>
@@ -1029,16 +1049,19 @@
                 <span class="c1"># pending&quot; error.</span>
                 <span class="n">client_state</span><span class="o">.</span><span class="n">message_buffer</span><span class="o">.</span><span class="n">set_done</span><span class="p">()</span>
 
+                <span class="c1"># Remove client state up front, before the disconnect callbacks:</span>
+                <span class="c1"># a callback that raises (or a CancelledError delivered at an</span>
+                <span class="c1"># `await` inside this finally) must not be able to skip it and</span>
+                <span class="c1"># leak the client. `pop(..., None)` keeps this idempotent.</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_client_state_from_id</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">client_id</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="n">total_connections</span> <span class="o">-=</span> <span class="mi">1</span>
+
                 <span class="c1"># Disconnection callbacks.</span>
                 <span class="k">for</span> <span class="n">cb</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client_disconnect_cb</span><span class="p">:</span>
                     <span class="k">if</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">iscoroutinefunction</span><span class="p">(</span><span class="n">cb</span><span class="p">):</span>
                         <span class="k">await</span> <span class="n">cb</span><span class="p">(</span><span class="n">client_connection</span><span class="p">)</span>
                     <span class="k">else</span><span class="p">:</span>
                         <span class="n">cb</span><span class="p">(</span><span class="n">client_connection</span><span class="p">)</span>
-
-                <span class="c1"># Cleanup.</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_client_state_from_id</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">client_id</span><span class="p">)</span>
-                <span class="n">total_connections</span> <span class="o">-=</span> <span class="mi">1</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_verbose</span><span class="p">:</span>
                     <span class="n">rich</span><span class="o">.</span><span class="n">print</span><span class="p">(</span>
                         <span class="sa">f</span><span class="s2">&quot;[bold](viser)[/bold] Connection closed (</span><span class="si">{</span><span class="n">client_id</span><span class="si">}</span><span class="s2">,&quot;</span>
@@ -1078,22 +1101,39 @@
             <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Upgrade&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;websocket&quot;</span><span class="p">:</span>
                 <span class="k">return</span> <span class="kc">None</span>
 
-            <span class="c1"># Strip out search params, get relative path.</span>
+            <span class="c1"># Strip out search params, get relative path. URL-decode so</span>
+            <span class="c1"># percent-encoded traversal sequences (e.g. ``%2e%2e/``)</span>
+            <span class="c1"># can&#39;t slip past the segment check below; normalize</span>
+            <span class="c1"># backslashes to forward slashes so a Windows-style path</span>
+            <span class="c1"># like ``foo\..\bar`` is also caught on Linux, where</span>
+            <span class="c1"># ``pathlib`` would otherwise treat the whole thing as a</span>
+            <span class="c1"># single literal filename.</span>
             <span class="n">path</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">path</span>
             <span class="n">path</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">partition</span><span class="p">(</span><span class="s2">&quot;?&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-            <span class="n">relpath</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">relative_to</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">))</span>
-            <span class="k">if</span> <span class="n">relpath</span> <span class="o">==</span> <span class="s2">&quot;.&quot;</span><span class="p">:</span>
-                <span class="n">relpath</span> <span class="o">=</span> <span class="s2">&quot;index.html&quot;</span>
-            <span class="k">assert</span> <span class="n">http_server_root</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="n">_url_unquote</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;/&quot;</span><span class="p">)</span>
 
-            <span class="n">source_path</span> <span class="o">=</span> <span class="p">(</span><span class="n">http_server_root</span> <span class="o">/</span> <span class="n">relpath</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
-            <span class="c1"># Reject path traversal. Equivalent to Path.is_relative_to(),</span>
-            <span class="c1"># which was added in Python 3.9.</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">source_path</span><span class="o">.</span><span class="n">relative_to</span><span class="p">(</span><span class="n">http_server_root</span><span class="o">.</span><span class="n">resolve</span><span class="p">())</span>
-            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="c1"># Reject path traversal by checking URL segments, not by</span>
+            <span class="c1"># comparing resolved paths. Under Bazel/uv runfile trees,</span>
+            <span class="c1"># http_server_root and the files inside it can pass through</span>
+            <span class="c1"># independent symlinks (e.g. uv hardlinks individual files</span>
+            <span class="c1"># from a shared cache), so Path.resolve() places a</span>
+            <span class="c1"># legitimate child outside the resolved root.</span>
+            <span class="c1">#</span>
+            <span class="c1"># Skipping the resolved-path check means we no longer</span>
+            <span class="c1"># validate that symlinks inside http_server_root stay</span>
+            <span class="c1"># within it. That is fine here: http_server_root is set</span>
+            <span class="c1"># by the application, not by user input, so the only</span>
+            <span class="c1"># attacker-controlled component is the URL path.</span>
+            <span class="n">segments</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">s</span> <span class="ow">and</span> <span class="n">s</span> <span class="o">!=</span> <span class="s2">&quot;.&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">s</span> <span class="o">==</span> <span class="s2">&quot;..&quot;</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">segments</span><span class="p">):</span>
                 <span class="k">return</span> <span class="n">Response</span><span class="p">(</span><span class="n">http</span><span class="o">.</span><span class="n">HTTPStatus</span><span class="o">.</span><span class="n">NOT_FOUND</span><span class="p">,</span> <span class="s2">&quot;NOT FOUND&quot;</span><span class="p">,</span> <span class="n">Headers</span><span class="p">())</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">source_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="n">relpath</span> <span class="o">=</span> <span class="s2">&quot;/&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">segments</span><span class="p">)</span> <span class="k">if</span> <span class="n">segments</span> <span class="k">else</span> <span class="s2">&quot;index.html&quot;</span>
+            <span class="k">assert</span> <span class="n">http_server_root</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="n">source_path</span> <span class="o">=</span> <span class="n">http_server_root</span> <span class="o">/</span> <span class="n">relpath</span>
+            <span class="c1"># ``is_file()`` (not ``exists()``) so a request resolving to a</span>
+            <span class="c1"># directory returns a clean 404 instead of raising</span>
+            <span class="c1"># ``IsADirectoryError`` on ``read_bytes()`` below (-&gt; a 500).</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">source_path</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
                 <span class="k">return</span> <span class="n">Response</span><span class="p">(</span><span class="n">http</span><span class="o">.</span><span class="n">HTTPStatus</span><span class="o">.</span><span class="n">NOT_FOUND</span><span class="p">,</span> <span class="s2">&quot;NOT FOUND&quot;</span><span class="p">,</span> <span class="n">Headers</span><span class="p">())</span>
 
             <span class="n">use_gzip</span> <span class="o">=</span> <span class="s2">&quot;gzip&quot;</span> <span class="ow">in</span> <span class="n">request</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Accept-Encoding&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
@@ -1191,7 +1231,7 @@
         <span class="n">event_loop</span><span class="o">.</span><span class="n">run_until_complete</span><span class="p">(</span><span class="n">start_server</span><span class="p">())</span>
         <span class="n">rich</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s2">&quot;[bold](viser)[/bold] Server stopped&quot;</span><span class="p">)</span>
 
-        <span class="c1"># Clean up the event loop to prevent reference leaks</span>
+        <span class="c1"># Clean up the event loop to prevent reference leaks.</span>
         <span class="n">event_loop</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
         <span class="n">event_loop</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
 

@@ -327,6 +327,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../examples/gui/plotly_integration/">Plotly integration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../examples/gui/uplot/">uPlot integration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../examples/gui/plots_as_images/">Plots as images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../examples/gui/commands/">Commands</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../../examples/interaction/">User Interaction</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of User Interaction</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -336,6 +337,8 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../examples/interaction/camera_poses/">Camera pose tracking</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../examples/interaction/camera_commands/">Programmatic camera control</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../examples/interaction/gui_in_scene/">3D GUI elements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../examples/interaction/scene_node_drag/">Scene-node drag events with rigid-body physics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../examples/interaction/batched_scene_node_drag/">Drag events on batched scene nodes</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../../examples/demos/">Demos</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle navigation of Demos</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -443,7 +446,8 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">_client_autobuild</span><span class="p">,</span> <span class="n">_messages</span><span class="p">,</span> <span class="n">infra</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">transforms</span> <span class="k">as</span> <span class="n">tf</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">._backwards_compat_shims</span><span class="w"> </span><span class="kn">import</span> <span class="n">DeprecatedAttributeShim</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">._gui_api</span><span class="w"> </span><span class="kn">import</span> <span class="n">GuiApi</span><span class="p">,</span> <span class="n">LiteralColor</span><span class="p">,</span> <span class="n">_make_uuid</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">._gui_api</span><span class="w"> </span><span class="kn">import</span> <span class="n">GuiApi</span><span class="p">,</span> <span class="n">LiteralColor</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">._gui_handles</span><span class="w"> </span><span class="kn">import</span> <span class="n">_make_uuid</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">._notification_handle</span><span class="w"> </span><span class="kn">import</span> <span class="n">NotificationHandle</span><span class="p">,</span> <span class="n">_NotificationHandleState</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">._scene_api</span><span class="w"> </span><span class="kn">import</span> <span class="n">SceneApi</span><span class="p">,</span> <span class="n">cast_vector</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">._threadpool_exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">print_threadpool_errors</span>
@@ -689,9 +693,10 @@
         <span class="n">y</span> <span class="o">=</span> <span class="n">y</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="o">*</span> <span class="n">z</span>
         <span class="n">y</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
         <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_state</span><span class="o">.</span><span class="n">wxyz</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">SO3</span><span class="o">.</span><span class="n">from_matrix</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">wxyz</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span>
-            <span class="n">np</span><span class="o">.</span><span class="n">float64</span>
-        <span class="p">)</span>
+        <span class="c1"># Cast to float64 explicitly: newer numpy stubs type np.cross() as</span>
+        <span class="c1"># possibly complex, which from_matrix() rejects.</span>
+        <span class="n">matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_state</span><span class="o">.</span><span class="n">wxyz</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">SO3</span><span class="o">.</span><span class="n">from_matrix</span><span class="p">(</span><span class="n">matrix</span><span class="p">)</span><span class="o">.</span><span class="n">wxyz</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">fov</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
@@ -1108,20 +1113,34 @@
 
         <span class="n">connection</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_websock_connection</span>
 
+        <span class="n">render_uuid</span> <span class="o">=</span> <span class="n">_make_uuid</span><span class="p">()</span>
+
         <span class="k">def</span><span class="w"> </span><span class="nf">got_render_cb</span><span class="p">(</span>
             <span class="n">client_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="n">_messages</span><span class="o">.</span><span class="n">GetRenderResponseMessage</span>
         <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">del</span> <span class="n">client_id</span>
+            <span class="c1"># Ignore responses for other concurrent get_render() calls on this</span>
+            <span class="c1"># client; only ours matches our request&#39;s uuid.</span>
+            <span class="k">if</span> <span class="n">message</span><span class="o">.</span><span class="n">render_uuid</span> <span class="o">!=</span> <span class="n">render_uuid</span><span class="p">:</span>
+                <span class="k">return</span>
             <span class="n">connection</span><span class="o">.</span><span class="n">unregister_handler</span><span class="p">(</span>
                 <span class="n">_messages</span><span class="o">.</span><span class="n">GetRenderResponseMessage</span><span class="p">,</span> <span class="n">got_render_cb</span>
             <span class="p">)</span>
             <span class="k">nonlocal</span> <span class="n">out</span>
-            <span class="kn">import</span><span class="w"> </span><span class="nn">imageio.v3</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">iio</span>
+            <span class="c1"># An empty payload is the client&#39;s failure sentinel (capture threw,</span>
+            <span class="c1"># or toBlob() returned null). Leave `out` as None and let the</span>
+            <span class="c1"># waiter raise, rather than crashing the decode here (which would</span>
+            <span class="c1"># never set the event and hang get_render() forever).</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">message</span><span class="o">.</span><span class="n">payload</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="kn">import</span><span class="w"> </span><span class="nn">imageio.v3</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">iio</span>
 
-            <span class="n">out</span> <span class="o">=</span> <span class="n">iio</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span>
-                <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">message</span><span class="o">.</span><span class="n">payload</span><span class="p">),</span>
-                <span class="n">extension</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;.</span><span class="si">{</span><span class="n">transport_format</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-            <span class="p">)</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">out</span> <span class="o">=</span> <span class="n">iio</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span>
+                        <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">message</span><span class="o">.</span><span class="n">payload</span><span class="p">),</span>
+                        <span class="n">extension</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;.</span><span class="si">{</span><span class="n">transport_format</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                    <span class="n">out</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="n">render_ready_event</span><span class="o">.</span><span class="n">set</span><span class="p">()</span>
 
         <span class="n">connection</span><span class="o">.</span><span class="n">register_handler</span><span class="p">(</span><span class="n">_messages</span><span class="o">.</span><span class="n">GetRenderResponseMessage</span><span class="p">,</span> <span class="n">got_render_cb</span><span class="p">)</span>
@@ -1139,10 +1158,14 @@
                 <span class="p">),</span>
                 <span class="n">wxyz</span><span class="o">=</span><span class="n">cast_vector</span><span class="p">(</span><span class="n">wxyz</span> <span class="k">if</span> <span class="n">wxyz</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">camera</span><span class="o">.</span><span class="n">wxyz</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span>
                 <span class="n">fov</span><span class="o">=</span><span class="n">fov</span> <span class="k">if</span> <span class="n">fov</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">camera</span><span class="o">.</span><span class="n">fov</span><span class="p">,</span>
+                <span class="n">render_uuid</span><span class="o">=</span><span class="n">render_uuid</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="p">)</span>
         <span class="n">render_ready_event</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
-        <span class="k">assert</span> <span class="n">out</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">out</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="s2">&quot;Render request failed: the client could not capture a frame.&quot;</span>
+            <span class="p">)</span>
         <span class="k">return</span> <span class="n">out</span></div>
 </div>
 
@@ -1182,7 +1205,7 @@
         <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="o">**</span><span class="n">_deprecated_kwargs</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="c1"># Check for port override environment variable</span>
+        <span class="c1"># Check for port override environment variable.</span>
         <span class="n">port_override</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;_VISER_PORT_OVERRIDE&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">port_override</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
@@ -1280,6 +1303,16 @@
                 <span class="k">if</span> <span class="n">conn</span><span class="o">.</span><span class="n">client_id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_connected_clients</span><span class="p">:</span>
                     <span class="k">return</span>
 
+                <span class="c1"># Drop any in-flight drag entries for this client; the</span>
+                <span class="c1"># corresponding ``phase=&quot;end&quot;`` will never arrive, so</span>
+                <span class="c1"># without this the active-drag map leaks an entry per</span>
+                <span class="c1"># dropped drag and ``on_drag_end`` is silently skipped.</span>
+                <span class="c1"># Run this *before* popping from ``_connected_clients``</span>
+                <span class="c1"># so the synthesized end event can resolve a</span>
+                <span class="c1"># ``ClientHandle`` for ``event.client``.</span>
+                <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">_drop_active_drags_for_client</span><span class="p">(</span>
+                    <span class="n">cast</span><span class="p">(</span><span class="n">infra</span><span class="o">.</span><span class="n">ClientId</span><span class="p">,</span> <span class="n">conn</span><span class="o">.</span><span class="n">client_id</span><span class="p">)</span>
+                <span class="p">)</span>
                 <span class="n">handle</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_connected_clients</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">conn</span><span class="o">.</span><span class="n">client_id</span><span class="p">)</span>
                 <span class="k">for</span> <span class="n">cb</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client_disconnect_cb</span><span class="p">:</span>
                     <span class="k">if</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">iscoroutinefunction</span><span class="p">(</span><span class="n">cb</span><span class="p">):</span>
@@ -1384,14 +1417,14 @@
 <span class="sd">        - Every tombstone message (``lifecycle_phase == &quot;remove&quot;``) for an</span>
 <span class="sd">          entity -- new clients shouldn&#39;t replay removals of entities that</span>
 <span class="sd">          never existed to them.</span>
-<span class="sd">        - Every update message (``lifecycle_phase == &quot;update&quot;``) targeting an</span>
-<span class="sd">          entity that was already removed.</span>
-<span class="sd">        - Scene-node-adjacent ``Set*Message`` variants (SetPosition,</span>
-<span class="sd">          SetOrientation, SetBonePosition, SetBoneOrientation,</span>
-<span class="sd">          SetSceneNodeClickable, SetSceneNodeVisibility) that target a removed</span>
-<span class="sd">          scene node. These aren&#39;t entity-declared because they target the</span>
-<span class="sd">          node-by-name but don&#39;t fit the &quot;updates: dict&quot; shape; a `name`-match</span>
-<span class="sd">          against the tombstone set catches them generically.</span>
+<span class="sd">        - Every update message (``lifecycle_phase`` of ``update_dict`` or</span>
+<span class="sd">          ``update_simple``) targeting an entity that was already removed. This</span>
+<span class="sd">          includes the scene-node ``Set*Message`` pose/visibility variants</span>
+<span class="sd">          (SetPosition, SetOrientation, SetBonePosition, SetBoneOrientation,</span>
+<span class="sd">          SetSceneNodeVisibility), which are declared ``update_simple``.</span>
+<span class="sd">        - Any remaining non-entity message carrying a ``name`` that matches a</span>
+<span class="sd">          removed scene node (e.g. the click/drag binding messages); a</span>
+<span class="sd">          ``name``-match against the tombstone set catches them generically.</span>
 
 <span class="sd">        Two passes so purging is order-independent under concurrent writers:</span>
 <span class="sd">        the first pass collects all tombstone entity ids, the second sweeps</span>
@@ -1429,7 +1462,7 @@
             <span class="k">if</span> <span class="n">removed_ids_by_type</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">msg_id</span><span class="p">,</span> <span class="n">message</span> <span class="ow">in</span> <span class="n">buffer</span><span class="o">.</span><span class="n">message_from_id</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                     <span class="n">phase</span> <span class="o">=</span> <span class="n">message</span><span class="o">.</span><span class="n">lifecycle_phase</span>
-                    <span class="k">if</span> <span class="n">phase</span> <span class="o">==</span> <span class="s2">&quot;update&quot;</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">phase</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;update_dict&quot;</span><span class="p">,</span> <span class="s2">&quot;update_simple&quot;</span><span class="p">):</span>
                         <span class="k">assert</span> <span class="p">(</span>
                             <span class="n">message</span><span class="o">.</span><span class="n">entity_type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
                             <span class="ow">and</span> <span class="n">message</span><span class="o">.</span><span class="n">entity_id_field</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>

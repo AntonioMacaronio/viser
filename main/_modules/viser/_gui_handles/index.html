@@ -327,6 +327,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../examples/gui/plotly_integration/">Plotly integration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../examples/gui/uplot/">uPlot integration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../examples/gui/plots_as_images/">Plots as images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../examples/gui/commands/">Commands</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../../examples/interaction/">User Interaction</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of User Interaction</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -336,6 +337,8 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../examples/interaction/camera_poses/">Camera pose tracking</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../examples/interaction/camera_commands/">Programmatic camera control</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../examples/interaction/gui_in_scene/">3D GUI elements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../examples/interaction/scene_node_drag/">Scene-node drag events with rigid-body physics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../examples/interaction/batched_scene_node_drag/">Drag events on batched scene nodes</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../../examples/demos/">Demos</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle navigation of Demos</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -441,6 +444,7 @@
     <span class="n">Literal</span><span class="p">,</span>
     <span class="n">Tuple</span><span class="p">,</span>
     <span class="n">TypeVar</span><span class="p">,</span>
+    <span class="n">cast</span><span class="p">,</span>
     <span class="n">overload</span><span class="p">,</span>
 <span class="p">)</span>
 
@@ -609,11 +613,25 @@
         <span class="c1"># For the documentation&#39;s sake, we&#39;ll be manually adding ::attribute directives below.</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_impl</span><span class="o">.</span><span class="n">value</span>
 
+    <span class="k">def</span><span class="w"> </span><span class="nf">_coerce_assigned_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">T</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Hook for input-type-specific coercion of an assigned value. The base</span>
+<span class="sd">        is identity; rgb/rgba handles override this to normalize colors.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">value</span>
+
     <span class="nd">@value</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">T</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_coerce_assigned_value</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
             <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">value</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2"> should be at most 1D!&quot;</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">value</span><span class="p">))</span>  <span class="c1"># type: ignore</span>
+            <span class="c1"># Preserve each element&#39;s expected Python type -- float for vectors,</span>
+            <span class="c1"># int for colors. A blanket `float(...)` would turn an int tuple into</span>
+            <span class="c1"># floats, and the `tuple(...)` cast below does not restore types.</span>
+            <span class="n">elems</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+            <span class="n">current</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_impl</span><span class="o">.</span><span class="n">value</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">current</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">current</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">elems</span><span class="p">):</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">c</span><span class="p">)(</span><span class="n">e</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span><span class="p">,</span> <span class="n">e</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">current</span><span class="p">,</span> <span class="n">elems</span><span class="p">))</span>  <span class="c1"># type: ignore</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">elems</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
 
         <span class="c1"># Convert to internal type early so we can compare.</span>
         <span class="n">value</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_impl</span><span class="o">.</span><span class="n">value</span><span class="p">)(</span><span class="n">value</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
@@ -775,6 +793,23 @@
 
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">_colors_to_int_tuple</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Coerce an RGB/RGBA color to an int tuple in [0, 255].</span>
+
+<span class="sd">    Integer channels are taken as absolute [0, 255]; float channels are</span>
+<span class="sd">    interpreted as [0, 1] and scaled (the matplotlib convention), so ``1.0`` -&gt;</span>
+<span class="sd">    255 (white) but ``1`` -&gt; 1. The result is clamped to [0, 255] -- matching</span>
+<span class="sd">    ``colors_to_uint8`` -- so out-of-range inputs (e.g. a float ``255.0`` or a</span>
+<span class="sd">    negative value) degrade gracefully instead of producing a wild value.</span>
+<span class="sd">    Generalized to any channel count (RGB and RGBA).&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">value</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Expected a 1D color, got shape </span><span class="si">{</span><span class="n">value</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">.&quot;</span>
+    <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span>
+        <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">v</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">)</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">v</span> <span class="o">*</span> <span class="mi">255</span><span class="p">)))</span>
+        <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">value</span>
+    <span class="p">)</span>
+
+
 <div class="viewcode-block" id="GuiRgbHandle">
 <a class="viewcode-back" href="../../../api/handles/gui_handles/#viser.GuiRgbHandle">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">GuiRgbHandle</span><span class="p">(</span><span class="n">GuiInputHandle</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]],</span> <span class="n">GuiRgbProps</span><span class="p">):</span>
@@ -784,7 +819,14 @@
 <span class="sd">       :type: tuple[int, int, int]</span>
 
 <span class="sd">       Value of the input. Synchronized automatically when assigned.</span>
-<span class="sd">    &quot;&quot;&quot;</span></div>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@override</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_coerce_assigned_value</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+        <span class="c1"># Float channels are [0, 1] (scaled to [0, 255]); int channels absolute.</span>
+        <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">_colors_to_int_tuple</span><span class="p">(</span><span class="n">value</span><span class="p">))</span></div>
 
 
 
@@ -797,7 +839,14 @@
 <span class="sd">       :type: tuple[int, int, int, int]</span>
 
 <span class="sd">       Value of the input. Synchronized automatically when assigned.</span>
-<span class="sd">    &quot;&quot;&quot;</span></div>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@override</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_coerce_assigned_value</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+        <span class="c1"># Float channels are [0, 1] (scaled to [0, 255]); int channels absolute.</span>
+        <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">_colors_to_int_tuple</span><span class="p">(</span><span class="n">value</span><span class="p">))</span></div>
 
 
 
@@ -1093,6 +1142,8 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">StringType</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># type: ignore</span>
         <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_impl</span><span class="o">.</span><span class="n">props</span><span class="p">,</span> <span class="n">GuiDropdownProps</span><span class="p">)</span>
         <span class="n">options</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">options</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">options</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Dropdown requires at least one option.&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_impl</span><span class="o">.</span><span class="n">props</span><span class="o">.</span><span class="n">options</span> <span class="o">=</span> <span class="n">options</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_impl</span><span class="o">.</span><span class="n">gui_api</span><span class="o">.</span><span class="n">_websock_interface</span><span class="o">.</span><span class="n">queue_message</span><span class="p">(</span>
@@ -1151,11 +1202,18 @@
                 <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="k">return</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_impl</span><span class="o">.</span><span class="n">removed</span> <span class="o">=</span> <span class="kc">True</span>
 
-        <span class="c1"># Remove tabs, then self.</span>
+        <span class="c1"># Remove tabs first. Each tab.remove() writes back to this group&#39;s</span>
+        <span class="c1"># tab-list props (_tab_labels / _tab_icons_html / _tab_container_ids), so</span>
+        <span class="c1"># we must NOT mark the group removed until afterwards -- otherwise the</span>
+        <span class="c1"># removed-handle guard in props_setattr raises on those writes, leaving</span>
+        <span class="c1"># the group half-removed (still in its parent&#39;s _children with</span>
+        <span class="c1"># removed=True). A subsequent gui.reset() then spins forever, since its</span>
+        <span class="c1"># `while root._children: child.remove()` loop hits that group whose</span>
+        <span class="c1"># remove() now no-ops via the already-removed guard.</span>
         <span class="k">for</span> <span class="n">tab</span> <span class="ow">in</span> <span class="nb">tuple</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tab_handles</span><span class="p">):</span>
             <span class="n">tab</span><span class="o">.</span><span class="n">remove</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_impl</span><span class="o">.</span><span class="n">removed</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="n">gui_api</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_impl</span><span class="o">.</span><span class="n">gui_api</span>
         <span class="n">gui_api</span><span class="o">.</span><span class="n">_websock_interface</span><span class="o">.</span><span class="n">queue_message</span><span class="p">(</span><span class="n">GuiRemoveMessage</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_impl</span><span class="o">.</span><span class="n">uuid</span><span class="p">))</span>
         <span class="n">parent</span> <span class="o">=</span> <span class="n">gui_api</span><span class="o">.</span><span class="n">_container_handle_from_uuid</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_impl</span><span class="o">.</span><span class="n">parent_container_id</span><span class="p">]</span>
@@ -1242,6 +1300,12 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">_tab_handles</span> <span class="o">=</span> <span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">_tab_handles</span><span class="p">[:</span><span class="n">found_index</span><span class="p">]</span>
             <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">_tab_handles</span><span class="p">[</span><span class="n">found_index</span> <span class="o">+</span> <span class="mi">1</span> <span class="p">:]</span>
+        <span class="p">)</span>
+        <span class="c1"># Keep the container-id list in sync with the handles. Otherwise the</span>
+        <span class="c1"># client receives mismatched `_tab_labels` / `_tab_container_ids`</span>
+        <span class="c1"># lengths and renders a stale (orphaned) tab panel.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">_tab_container_ids</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span>
+            <span class="n">handle</span><span class="o">.</span><span class="n">_id</span> <span class="k">for</span> <span class="n">handle</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">_tab_handles</span>
         <span class="p">)</span>
 
         <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="nb">tuple</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_children</span><span class="o">.</span><span class="n">values</span><span class="p">()):</span>
@@ -1586,7 +1650,9 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">impl</span><span class="o">=</span><span class="n">_impl</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_image</span> <span class="o">=</span> <span class="n">_image</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_jpeg_quality</span> <span class="o">=</span> <span class="n">_jpeg_quality</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_user_format</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;auto&quot;</span><span class="p">,</span> <span class="s2">&quot;jpeg&quot;</span><span class="p">,</span> <span class="s2">&quot;png&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;auto&quot;</span>  <span class="c1"># Default if not set</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_user_format</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;auto&quot;</span><span class="p">,</span> <span class="s2">&quot;jpeg&quot;</span><span class="p">,</span> <span class="s2">&quot;png&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;auto&quot;</span>  <span class="c1"># Default if not set.</span>
+        <span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">image</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
@@ -1629,6 +1695,8 @@
 
 
 
+<div class="viewcode-block" id="CommandEvent">
+<a class="viewcode-back" href="../../../api/advanced/events/#viser.CommandEvent">[docs]</a>
 <span class="nd">@dataclasses</span><span class="o">.</span><span class="n">dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">CommandEvent</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Information associated with a command trigger from the command palette.</span>
@@ -1647,7 +1715,8 @@
     <span class="n">client_id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;ID of client that triggered this command.&quot;&quot;&quot;</span>
     <span class="n">target</span><span class="p">:</span> <span class="n">CommandHandle</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Command handle that was triggered.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Command handle that was triggered.&quot;&quot;&quot;</span></div>
+
 
 
 <span class="nd">@dataclasses</span><span class="o">.</span><span class="n">dataclass</span>
@@ -1664,11 +1733,15 @@
     <span class="n">removed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
 
 
+<div class="viewcode-block" id="CommandHandle">
+<a class="viewcode-back" href="../../../api/handles/gui_handles/#viser.CommandHandle">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">CommandHandle</span><span class="p">(</span><span class="n">AssignablePropsBase</span><span class="p">[</span><span class="n">_CommandHandleState</span><span class="p">],</span> <span class="n">CommandProps</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Handle for a command registered in the command palette.</span>
 
 <span class="sd">    Commands are shown in a command palette (Ctrl/Cmd+K, also Ctrl/Cmd+Shift+P</span>
-<span class="sd">    on non-Firefox browsers) and can optionally be triggered via hotkeys.&quot;&quot;&quot;</span>
+<span class="sd">    on non-Firefox browsers) and can optionally be triggered via hotkeys.</span>
+
+<span class="sd">    (Experimental) The command palette API may change in future releases.&quot;&quot;&quot;</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_impl</span><span class="p">:</span> <span class="n">_CommandHandleState</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">impl</span><span class="o">=</span><span class="n">_impl</span><span class="p">)</span>
@@ -1690,6 +1763,8 @@
             <span class="n">CommandUpdateMessage</span><span class="p">(</span><span class="n">uuid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_impl</span><span class="o">.</span><span class="n">uuid</span><span class="p">,</span> <span class="n">updates</span><span class="o">=</span><span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">value</span><span class="p">})</span>
         <span class="p">)</span>
 
+<div class="viewcode-block" id="CommandHandle.on_trigger">
+<a class="viewcode-back" href="../../../api/handles/gui_handles/#viser.CommandHandle.on_trigger">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">on_trigger</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">CommandEvent</span><span class="p">],</span> <span class="n">NoneOrCoroutine</span><span class="p">]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">CommandEvent</span><span class="p">],</span> <span class="n">NoneOrCoroutine</span><span class="p">]:</span>
@@ -1706,8 +1781,11 @@
                 <span class="s2">&quot;Cannot attach a trigger callback to a removed CommandHandle.&quot;</span>
             <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_impl</span><span class="o">.</span><span class="n">trigger_cb</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">func</span>
+        <span class="k">return</span> <span class="n">func</span></div>
 
+
+<div class="viewcode-block" id="CommandHandle.remove">
+<a class="viewcode-back" href="../../../api/handles/gui_handles/#viser.CommandHandle.remove">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">remove</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Remove this command from the command palette.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_impl</span><span class="o">.</span><span class="n">removed</span><span class="p">:</span>
@@ -1719,7 +1797,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_impl</span><span class="o">.</span><span class="n">removed</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="n">gui_api</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_impl</span><span class="o">.</span><span class="n">gui_api</span>
         <span class="n">gui_api</span><span class="o">.</span><span class="n">_websock_interface</span><span class="o">.</span><span class="n">queue_message</span><span class="p">(</span><span class="n">RemoveCommandMessage</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_impl</span><span class="o">.</span><span class="n">uuid</span><span class="p">))</span>
-        <span class="n">gui_api</span><span class="o">.</span><span class="n">_command_handle_from_uuid</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_impl</span><span class="o">.</span><span class="n">uuid</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">gui_api</span><span class="o">.</span><span class="n">_command_handle_from_uuid</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_impl</span><span class="o">.</span><span class="n">uuid</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span></div>
+</div>
+
 </pre></div>
         </article>
       </div>

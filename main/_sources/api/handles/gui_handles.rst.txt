@@ -4,6 +4,8 @@
 GUI Handles
 ===========
 
+.. autoclass:: viser.CommandHandle
+
 .. autoclass:: viser.GuiButtonGroupHandle
 
 .. autoclass:: viser.GuiButtonHandle

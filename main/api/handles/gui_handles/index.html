@@ -328,6 +328,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../examples/gui/plotly_integration/">Plotly integration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../examples/gui/uplot/">uPlot integration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../examples/gui/plots_as_images/">Plots as images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../examples/gui/commands/">Commands</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../../examples/interaction/">User Interaction</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of User Interaction</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -337,6 +338,8 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../examples/interaction/camera_poses/">Camera pose tracking</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../examples/interaction/camera_commands/">Programmatic camera control</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../examples/interaction/gui_in_scene/">3D GUI elements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../examples/interaction/scene_node_drag/">Scene-node drag events with rigid-body physics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../examples/interaction/batched_scene_node_drag/">Drag events on batched scene nodes</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../../examples/demos/">Demos</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle navigation of Demos</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -429,6 +432,81 @@
         <article role="main" id="furo-main-content">
           <section id="gui-handles">
 <h1>GUI Handles<a class="headerlink" href="#gui-handles" title="Link to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="viser.CommandHandle">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">viser.</span></span><span class="sig-name descname"><span class="pre">CommandHandle</span></span><a class="reference internal" href="../../../_modules/viser/_gui_handles/#CommandHandle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#viser.CommandHandle" title="Link to this definition">¶</a></dt>
+<dd><p>Handle for a command registered in the command palette.</p>
+<p>Commands are shown in a command palette (Ctrl/Cmd+K, also Ctrl/Cmd+Shift+P
+on non-Firefox browsers) and can optionally be triggered via hotkeys.</p>
+<p>(Experimental) The command palette API may change in future releases.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="viser.CommandHandle.label">
+<span class="sig-name descname"><span class="pre">label</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></em><a class="headerlink" href="#viser.CommandHandle.label" title="Link to this definition">¶</a></dt>
+<dd><p>Label displayed in the command palette.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="viser.CommandHandle.description">
+<span class="sig-name descname"><span class="pre">description</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></em><a class="headerlink" href="#viser.CommandHandle.description" title="Link to this definition">¶</a></dt>
+<dd><p>Description displayed below the label.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="viser.CommandHandle.hotkey">
+<span class="sig-name descname"><span class="pre">hotkey</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">HotkeyKey</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></em><a class="headerlink" href="#viser.CommandHandle.hotkey" title="Link to this definition">¶</a></dt>
+<dd><p>Hotkey key, e.g. <code class="docutils literal notranslate"><span class="pre">&quot;K&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;R&quot;</span></code>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="viser.CommandHandle.modifier">
+<span class="sig-name descname"><span class="pre">modifier</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">KeyModifier</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></em><a class="headerlink" href="#viser.CommandHandle.modifier" title="Link to this definition">¶</a></dt>
+<dd><p>Modifier-combo held with the hotkey, e.g. <code class="docutils literal notranslate"><span class="pre">&quot;cmd/ctrl&quot;</span></code> or
+<code class="docutils literal notranslate"><span class="pre">&quot;cmd/ctrl+shift&quot;</span></code>. <code class="docutils literal notranslate"><span class="pre">None</span></code> matches “no modifiers held”.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="viser.CommandHandle.disabled">
+<span class="sig-name descname"><span class="pre">disabled</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></em><a class="headerlink" href="#viser.CommandHandle.disabled" title="Link to this definition">¶</a></dt>
+<dd><p>Whether the command is disabled (visible but not triggerable).</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="viser.CommandHandle.icon">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">icon</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">IconName</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></em><a class="headerlink" href="#viser.CommandHandle.icon" title="Link to this definition">¶</a></dt>
+<dd><p>Icon displayed in the command palette.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="viser.CommandHandle.on_trigger">
+<span class="sig-name descname"><span class="pre">on_trigger</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.14)"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../../advanced/events/#viser.CommandEvent" title="viser._gui_handles.CommandEvent"><span class="pre">CommandEvent</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">NoneOrCoroutine</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.14)"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../../advanced/events/#viser.CommandEvent" title="viser._gui_handles.CommandEvent"><span class="pre">CommandEvent</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">NoneOrCoroutine</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/viser/_gui_handles/#CommandHandle.on_trigger"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#viser.CommandHandle.on_trigger" title="Link to this definition">¶</a></dt>
+<dd><p>Attach a function to call when this command is triggered.</p>
+<p>Note:
+- If <cite>func</cite> is a regular function (defined with <cite>def</cite>), it will be executed in a thread pool.
+- If <cite>func</cite> is an async function (defined with <cite>async def</cite>), it will be executed in the event loop.</p>
+<p>Using async functions can be useful for reducing race conditions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>func</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.14)"><em>Callable</em></a><em>[</em><em>[</em><a class="reference internal" href="../../advanced/events/#viser.CommandEvent" title="viser._gui_handles.CommandEvent"><em>CommandEvent</em></a><em>]</em><em>, </em><em>NoneOrCoroutine</em><em>]</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.14)"><em>Callable</em></a>[[<a class="reference internal" href="../../advanced/events/#viser.CommandEvent" title="viser._gui_handles.CommandEvent"><em>CommandEvent</em></a>], <em>NoneOrCoroutine</em>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="viser.CommandHandle.remove">
+<span class="sig-name descname"><span class="pre">remove</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../_modules/viser/_gui_handles/#CommandHandle.remove"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#viser.CommandHandle.remove" title="Link to this definition">¶</a></dt>
+<dd><p>Remove this command from the command palette.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="viser.GuiButtonGroupHandle">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">viser.</span></span><span class="sig-name descname"><span class="pre">GuiButtonGroupHandle</span></span><a class="reference internal" href="../../../_modules/viser/_gui_handles/#GuiButtonGroupHandle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#viser.GuiButtonGroupHandle" title="Link to this definition">¶</a></dt>
@@ -2548,6 +2626,17 @@ Used when height is None.</p>
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">GUI Handles</a><ul>
+<li><a class="reference internal" href="#viser.CommandHandle"><code class="docutils literal notranslate"><span class="pre">CommandHandle</span></code></a><ul>
+<li><a class="reference internal" href="#viser.CommandHandle.label"><code class="docutils literal notranslate"><span class="pre">CommandHandle.label</span></code></a></li>
+<li><a class="reference internal" href="#viser.CommandHandle.description"><code class="docutils literal notranslate"><span class="pre">CommandHandle.description</span></code></a></li>
+<li><a class="reference internal" href="#viser.CommandHandle.hotkey"><code class="docutils literal notranslate"><span class="pre">CommandHandle.hotkey</span></code></a></li>
+<li><a class="reference internal" href="#viser.CommandHandle.modifier"><code class="docutils literal notranslate"><span class="pre">CommandHandle.modifier</span></code></a></li>
+<li><a class="reference internal" href="#viser.CommandHandle.disabled"><code class="docutils literal notranslate"><span class="pre">CommandHandle.disabled</span></code></a></li>
+<li><a class="reference internal" href="#viser.CommandHandle.icon"><code class="docutils literal notranslate"><span class="pre">CommandHandle.icon</span></code></a></li>
+<li><a class="reference internal" href="#viser.CommandHandle.on_trigger"><code class="docutils literal notranslate"><span class="pre">CommandHandle.on_trigger()</span></code></a></li>
+<li><a class="reference internal" href="#viser.CommandHandle.remove"><code class="docutils literal notranslate"><span class="pre">CommandHandle.remove()</span></code></a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#viser.GuiButtonGroupHandle"><code class="docutils literal notranslate"><span class="pre">GuiButtonGroupHandle</span></code></a><ul>
 <li><a class="reference internal" href="#viser.GuiButtonGroupHandle.value"><code class="docutils literal notranslate"><span class="pre">GuiButtonGroupHandle.value</span></code></a></li>
 <li><a class="reference internal" href="#viser.GuiButtonGroupHandle.on_click"><code class="docutils literal notranslate"><span class="pre">GuiButtonGroupHandle.on_click()</span></code></a></li>

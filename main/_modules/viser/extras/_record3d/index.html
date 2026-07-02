@@ -327,6 +327,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../../examples/gui/plotly_integration/">Plotly integration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../examples/gui/uplot/">uPlot integration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../examples/gui/plots_as_images/">Plots as images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../examples/gui/commands/">Commands</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../../../examples/interaction/">User Interaction</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of User Interaction</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -336,6 +337,8 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../../examples/interaction/camera_poses/">Camera pose tracking</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../examples/interaction/camera_commands/">Programmatic camera control</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../examples/interaction/gui_in_scene/">3D GUI elements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../examples/interaction/scene_node_drag/">Scene-node drag events with rigid-body physics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../examples/interaction/batched_scene_node_drag/">Drag events on batched scene nodes</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../../../examples/demos/">Demos</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle navigation of Demos</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -525,7 +528,7 @@
 <span class="sd">            Generator of Record3dFrame objects, in the same order as indices.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Threads are fine here because pyliblzfse should release the GIL, we</span>
-        <span class="c1"># can overlap with IO, etc..</span>
+        <span class="c1"># can overlap with IO, etc.</span>
         <span class="k">with</span> <span class="n">ThreadPoolExecutor</span><span class="p">(</span><span class="n">max_workers</span><span class="o">=</span><span class="n">max_workers</span><span class="p">)</span> <span class="k">as</span> <span class="n">executor</span><span class="p">:</span>
             <span class="k">yield from</span> <span class="n">executor</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_frame</span><span class="p">,</span> <span class="n">indices</span><span class="p">)</span></div>
 
@@ -546,9 +549,9 @@
             <span class="n">liblzfse</span><span class="o">.</span><span class="n">decompress</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">conf_paths</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">read_bytes</span><span class="p">()),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="n">conf</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">640</span> <span class="o">*</span> <span class="mi">480</span><span class="p">:</span>
-            <span class="n">conf</span> <span class="o">=</span> <span class="n">conf</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">640</span><span class="p">,</span> <span class="mi">480</span><span class="p">))</span>  <span class="c1"># For a FaceID camera 3D Video</span>
+            <span class="n">conf</span> <span class="o">=</span> <span class="n">conf</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">640</span><span class="p">,</span> <span class="mi">480</span><span class="p">))</span>  <span class="c1"># For a FaceID camera 3D Video.</span>
         <span class="k">elif</span> <span class="n">conf</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">256</span> <span class="o">*</span> <span class="mi">192</span><span class="p">:</span>
-            <span class="n">conf</span> <span class="o">=</span> <span class="n">conf</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">256</span><span class="p">,</span> <span class="mi">192</span><span class="p">))</span>  <span class="c1"># For a LiDAR 3D Video</span>
+            <span class="n">conf</span> <span class="o">=</span> <span class="n">conf</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">256</span><span class="p">,</span> <span class="mi">192</span><span class="p">))</span>  <span class="c1"># For a LiDAR 3D Video.</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">assert</span> <span class="kc">False</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Unexpected conf shape </span><span class="si">{</span><span class="n">conf</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span>
 
@@ -557,9 +560,9 @@
             <span class="n">liblzfse</span><span class="o">.</span><span class="n">decompress</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">depth_paths</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">read_bytes</span><span class="p">()),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span>
         <span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">depth</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">640</span> <span class="o">*</span> <span class="mi">480</span><span class="p">:</span>
-            <span class="n">depth</span> <span class="o">=</span> <span class="n">depth</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">640</span><span class="p">,</span> <span class="mi">480</span><span class="p">))</span>  <span class="c1"># For a FaceID camera 3D Video</span>
+            <span class="n">depth</span> <span class="o">=</span> <span class="n">depth</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">640</span><span class="p">,</span> <span class="mi">480</span><span class="p">))</span>  <span class="c1"># For a FaceID camera 3D Video.</span>
         <span class="k">elif</span> <span class="n">depth</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">256</span> <span class="o">*</span> <span class="mi">192</span><span class="p">:</span>
-            <span class="n">depth</span> <span class="o">=</span> <span class="n">depth</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">256</span><span class="p">,</span> <span class="mi">192</span><span class="p">))</span>  <span class="c1"># For a LiDAR 3D Video</span>
+            <span class="n">depth</span> <span class="o">=</span> <span class="n">depth</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">256</span><span class="p">,</span> <span class="mi">192</span><span class="p">))</span>  <span class="c1"># For a LiDAR 3D Video.</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">assert</span> <span class="kc">False</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Unexpected depth shape </span><span class="si">{</span><span class="n">depth</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span>
 
